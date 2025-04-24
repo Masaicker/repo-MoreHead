@@ -1,3 +1,7 @@
+# v1.3.11
+* 减少了中文字符导致的乱码显示以及控制台不断警告提示的问题
+* Reduced garbled text and console warnings caused by Chinese characters
+
 # v1.3.10
 * 新增配置选项，可自定义ESC菜单和大厅按钮的位置坐标
 * Added config options to customize button position in ESC menu and lobby

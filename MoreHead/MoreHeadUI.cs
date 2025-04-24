@@ -12,6 +12,7 @@ using System.IO;
 using MenuLib.MonoBehaviors;
 using MenuLib.Structs;
 using BepInEx.Configuration;
+using Steamworks;
 
 namespace MoreHead
 {
@@ -291,7 +292,42 @@ namespace MoreHead
             {
                 // 创建作者标记按钮（使用按钮作为文本显示，但不添加点击事件）
                 page.AddElement(parent => {
-                    MenuAPI.CreateREPOButton("<size=10><color=#FFFFA0>Masaicker</color> and <color=#FFFFA0>Yuriscat</color> co-developed.\n由<color=#FFFFA0>马赛克了</color>和<color=#FFFFA0>尤里的猫</color>共同制作。</size>", () => {}, parent, new Vector2(300, 329));
+                    // 获取Steam客户端语言，先检查Steam是否已初始化
+                    string? steamLanguage = null;
+                    try 
+                    {
+                        // 尝试获取Steam语言，如果Steam未初始化会抛出异常
+                        if (SteamClient.IsValid)
+                        {
+                            steamLanguage = SteamUtils.SteamUILanguage;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        // Steam未初始化或获取语言失败，记录错误但不影响功能
+                        Logger?.LogWarning($"获取Steam语言时出错（将使用默认英文）: {ex.Message}");
+                    }
+                    
+                    string authorText;
+                    
+                    // 根据Steam客户端语言决定显示文本
+                    if (steamLanguage != null && steamLanguage.ToLower().StartsWith("schinese"))
+                    {
+                        // 简体中文
+                        authorText = "<size=10>由<color=#FFFFA0>马赛克了</color>和<color=#FFFFA0>尤里的猫</color>共同制作。</size>";
+                    }
+                    else if (steamLanguage != null && steamLanguage.ToLower().StartsWith("tchinese"))
+                    {
+                        // 繁体中文
+                        authorText = "<size=10>由<color=#FFFFA0>馬賽克了</color>和<color=#FFFFA0>尤里的貓</color>共同製作。</size>";
+                    }
+                    else
+                    {
+                        // 其他语言或Steam未初始化时只显示英文
+                        authorText = "<size=10><color=#FFFFA0>Masaicker</color> and <color=#FFFFA0>Yuriscat</color> co-developed.</size>";
+                    }
+                    
+                    MenuAPI.CreateREPOButton(authorText, () => {}, parent, new Vector2(300, 329));
                 });
             }
             catch (Exception e)
@@ -1060,7 +1096,7 @@ namespace MoreHead
             }
             catch (Exception e)
             {
-                Logger?.LogError($"添加操作按钮时出错: {e.Message}");
+                Logger?.LogError($"创建操作按钮时出错: {e.Message}");
             }
         }
         
