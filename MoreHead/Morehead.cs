@@ -16,7 +16,7 @@ public class Morehead : BaseUnityPlugin
 {
     private const string PluginGuid = "Mhz.REPOMoreHead";
     private const string PluginName = "MoreHead";
-    private const string PluginVersion = "1.3.11";
+    private const string PluginVersion = "1.4.0";
     // 单例实例
     public static Morehead? Instance { get; private set; }
     
@@ -301,30 +301,13 @@ class PlayerAvatarAwakePatch
 // 头部装饰同步组件
 public class HeadDecorationSync : MonoBehaviourPun
 {
-    // 同步所有装饰物状态
+    // 同步所有装饰物状态 - 保留原方法以兼容旧版本
     public void SyncAllDecorations()
     {
         try
         {
-            // 准备装饰物数据
-            string?[] names = new string[HeadDecorationManager.Decorations.Count];
-            bool[] states = new bool[HeadDecorationManager.Decorations.Count];
-            string?[] parentTags = new string?[HeadDecorationManager.Decorations.Count];
-            
-            // 填充数据
-            for (int i = 0; i < HeadDecorationManager.Decorations.Count; i++)
-            {
-                var decoration = HeadDecorationManager.Decorations[i];
-                names[i] = decoration.Name;
-                states[i] = decoration.IsVisible;
-                parentTags[i] = decoration.ParentTag;
-            }
-            
-            // 发送RPC
-            photonView.RPC("UpdateAllDecorations", RpcTarget.Others, names, states, parentTags);
-            
-            // 移除普通日志，只在调试时需要
-            // Morehead.Logger?.LogInfo($"已同步所有装饰物状态，共 {names.Length} 个");
+            // 使用新的压缩方法替代
+            SyncAllDecorationsCompressed();
             
             // 清除变化记录，因为已经全量同步了
             HeadDecorationManager.ClearChangedDecorations();
@@ -332,6 +315,74 @@ public class HeadDecorationSync : MonoBehaviourPun
         catch (System.Exception e)
         {
             Morehead.Logger?.LogError($"同步所有装饰物状态失败: {e.Message}");
+        }
+    }
+    
+    // 使用位图压缩同步所有装饰物状态
+    private void SyncAllDecorationsCompressed()
+    {
+        try
+        {
+            // 获取装饰物列表
+            var decorations = HeadDecorationManager.Decorations;
+            int decorationCount = decorations.Count;
+            
+            // 如果没有装饰物，直接返回
+            if (decorationCount == 0) return;
+            
+            // 计算需要多少字节存储所有状态
+            int byteCount = (decorationCount + 7) / 8; // 向上取整到字节
+            
+            // 创建位图字节数组
+            byte[] stateBitmap = new byte[byteCount];
+            
+            // 收集所有父级标签类型（用于接收端还原装饰物标签）
+            Dictionary<string, int> parentTagIndices = new Dictionary<string, int>();
+            List<string> parentTags = new List<string>();
+            
+            // 填充位图和收集标签
+            for (int i = 0; i < decorationCount; i++)
+            {
+                var decoration = decorations[i];
+                string decorationParentTag = decoration.ParentTag ?? string.Empty;
+                
+                // 记录标签索引
+                if (!parentTagIndices.ContainsKey(decorationParentTag))
+                {
+                    parentTagIndices[decorationParentTag] = parentTags.Count;
+                    parentTags.Add(decorationParentTag);
+                }
+                
+                // 如果装饰物可见，设置对应位为1
+                if (decoration.IsVisible)
+                {
+                    int byteIndex = i / 8;
+                    int bitIndex = i % 8;
+                    stateBitmap[byteIndex] |= (byte)(1 << bitIndex);
+                }
+            }
+            
+            // 创建装饰物名称列表
+            var names = new string[decorationCount];
+            // 创建装饰物父标签索引数组
+            var tagIndices = new byte[decorationCount];
+            
+            // 填充名称和标签索引
+            for (int i = 0; i < decorationCount; i++)
+            {
+                var decoration = decorations[i];
+                names[i] = decoration.Name ?? string.Empty;
+                tagIndices[i] = (byte)parentTagIndices[decoration.ParentTag ?? string.Empty];
+            }
+            
+            // 发送RPC
+            photonView.RPC("UpdateAllDecorationsCompressed", RpcTarget.Others, stateBitmap, names, parentTags.ToArray(), tagIndices);
+            
+            // Morehead.Logger?.LogInfo($"已压缩同步所有装饰物状态，共 {decorationCount} 个，压缩为 {byteCount} 字节");
+        }
+        catch (System.Exception e)
+        {
+            Morehead.Logger?.LogError($"压缩同步所有装饰物状态失败: {e.Message}");
         }
     }
     
@@ -374,7 +425,7 @@ public class HeadDecorationSync : MonoBehaviourPun
         }
     }
     
-    // RPC方法：更新所有装饰物
+    // RPC方法：更新所有装饰物 - 保留原方法以兼容旧版本
     [PunRPC]
     void UpdateAllDecorations(string[] names, bool[] states, string[] parentTags)
     {
@@ -402,11 +453,11 @@ public class HeadDecorationSync : MonoBehaviourPun
             DecorationUtils.EnsureDecorationContainers(parentNodes);
             
             // 更新每个装饰物
-            for (int i = 0; i < names.Length; i++)
+            for (var i = 0; i < names.Length; i++)
             {
-                string name = names[i];
-                bool state = states[i];
-                string parentTag = parentTags[i];
+                var decorationName = names[i];
+                var state = states[i];
+                var parentTag = parentTags[i];
                 
                 // 获取对应的父级节点
                 if (parentNodes.TryGetValue(parentTag, out Transform parentNode))
@@ -416,7 +467,7 @@ public class HeadDecorationSync : MonoBehaviourPun
                     if (decorationsParent != null)
                     {
                         // 更新装饰物状态
-                        DecorationUtils.UpdateDecoration(decorationsParent, name, state);
+                        DecorationUtils.UpdateDecoration(decorationsParent, decorationName, state);
                     }
                 }
             }
@@ -427,6 +478,78 @@ public class HeadDecorationSync : MonoBehaviourPun
         catch (System.Exception e)
         {
             Morehead.Logger?.LogError($"RPC更新所有装饰物状态失败: {e.Message}");
+        }
+    }
+    
+    // 新增RPC方法：使用位图压缩更新所有装饰物
+    [PunRPC]
+    void UpdateAllDecorationsCompressed(byte[] stateBitmap, string[] names, string[] parentTags, byte[] tagIndices)
+    {
+        try
+        {
+            // 获取PlayerAvatar组件
+            var playerAvatar = GetComponent<PlayerAvatar>();
+            if (playerAvatar == null || playerAvatar.playerAvatarVisuals == null)
+            {
+                Morehead.Logger?.LogWarning("找不到PlayerAvatar或PlayerAvatarVisuals组件");
+                return;
+            }
+            
+            // 使用通用方法获取父级节点
+            var parentNodes = DecorationUtils.GetDecorationParentNodes(playerAvatar.playerAvatarVisuals.transform);
+            
+            // 检查是否找到了任何父级节点
+            if (parentNodes.Count == 0)
+            {
+                Morehead.Logger?.LogWarning("找不到任何装饰物父级节点");
+                return;
+            }
+            
+            // 确保每个父级节点有装饰物容器
+            DecorationUtils.EnsureDecorationContainers(parentNodes);
+            
+            // 更新每个装饰物
+            for (var i = 0; i < names.Length; i++)
+            {
+                // 从位图中解析状态
+                var byteIndex = i / 8;
+                var bitIndex = i % 8;
+                var state = false;
+                
+                // 确保索引有效
+                if (byteIndex < stateBitmap.Length)
+                {
+                    state = (stateBitmap[byteIndex] & (1 << bitIndex)) != 0;
+                }
+                
+                // 从标签索引获取实际标签
+                string parentTag = string.Empty;
+                if (i < tagIndices.Length && tagIndices[i] < parentTags.Length)
+                {
+                    parentTag = parentTags[tagIndices[i]];
+                }
+                
+                // 获取装饰物名称
+                string decorationName = names[i];
+                
+                // 获取对应的父级节点
+                if (parentNodes.TryGetValue(parentTag, out Transform parentNode))
+                {
+                    // 查找装饰物父对象
+                    var decorationsParent = parentNode.Find("HeadDecorations");
+                    if (decorationsParent != null)
+                    {
+                        // 更新装饰物状态
+                        DecorationUtils.UpdateDecoration(decorationsParent, decorationName, state);
+                    }
+                }
+            }
+            
+            // Morehead.Logger?.LogInfo($"通过压缩RPC更新玩家({photonView.Owner.NickName})的所有装饰物状态，共 {names.Length} 个");
+        }
+        catch (System.Exception e)
+        {
+            Morehead.Logger?.LogError($"RPC更新压缩装饰物状态失败: {e.Message}");
         }
     }
     
@@ -531,6 +654,7 @@ class PlayerAvatarVisualsPatch
                         }
                     }
                 }
+                Debug.Log("菜单");
             }
             else
             {
@@ -730,7 +854,7 @@ class PlayerRevivePatch
         yield return null;
         
         // 再等待一小段时间，确保所有组件都已初始化
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.1f);
         
         // 首先确保玩家的装饰物状态是最新的
         try
@@ -955,4 +1079,3 @@ class MenuPageStateSetPatch
         }
     }
 }
-

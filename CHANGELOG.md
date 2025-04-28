@@ -1,3 +1,7 @@
+# v1.4.0
+* 压缩了网络传输数据，略微提高了联机性能
+* Compressed network data to slightly improve multiplayer performance
+
 # v1.3.11
 * 减少了中文字符导致的乱码显示以及控制台不断警告提示的问题
 * Reduced garbled text and console warnings caused by Chinese characters
