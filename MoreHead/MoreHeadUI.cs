@@ -698,8 +698,8 @@ namespace MoreHead
                     var syncComponent = localPlayer.GetComponent<HeadDecorationSync>();
                     if (syncComponent != null)
                     {
-                        // 使用新方法同步所有装饰物
-                        syncComponent.SyncAllDecorations();
+                        // 使用增量同步方法，只同步已变化的装饰物
+                        syncComponent.SyncChangedDecorations();
                     }
                 }
                 

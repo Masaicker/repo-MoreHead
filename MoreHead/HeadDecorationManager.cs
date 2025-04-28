@@ -46,6 +46,9 @@ namespace MoreHead
         // 装饰物列表
         public static List<DecorationInfo> Decorations { get; private set; } = new List<DecorationInfo>();
         
+        // 记录状态发生变化的装饰物
+        private static HashSet<string> changedDecorations = new HashSet<string>();
+        
         // 装饰物父级路径映射
         private static Dictionary<string?, string> parentPathMap = new Dictionary<string?, string>
         {
@@ -406,44 +409,36 @@ namespace MoreHead
         // 获取装饰物显示状态
         public static bool GetDecorationState(string? name)
         {
-            var decoration = Decorations.FirstOrDefault(d => d.Name != null && d.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            if (decoration == null)
-            {
-                Logger?.LogWarning($"GetDecorationState: 找不到装饰物 {name}");
-            }
+            if (string.IsNullOrEmpty(name)) return false;
+            var decoration = Decorations.FirstOrDefault(d => d.Name == name);
             return decoration?.IsVisible ?? false;
         }
         
         // 设置装饰物显示状态
         public static void SetDecorationState(string name, bool isVisible)
         {
-            var decoration = Decorations.FirstOrDefault(d => d.Name != null && d.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
-            if (decoration != null)
+            if (string.IsNullOrEmpty(name)) return;
+            var decoration = Decorations.FirstOrDefault(d => d.Name == name);
+            if (decoration != null && decoration.IsVisible != isVisible)
             {
                 decoration.IsVisible = isVisible;
-                Logger?.LogInfo($"设置装饰物 {decoration.DisplayName} 显示状态为: {isVisible}");
-            }
-            else
-            {
-                Logger?.LogWarning($"SetDecorationState: 找不到装饰物 {name}");
+                changedDecorations.Add(name); // 记录状态发生变化的装饰物
             }
         }
         
         // 切换装饰物显示状态
         public static bool ToggleDecorationState(string? name)
         {
-            var decoration = Decorations.FirstOrDefault(d => d.Name != null && d.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+            if (string.IsNullOrEmpty(name)) return false;
+            var decoration = Decorations.FirstOrDefault(d => d.Name == name);
             if (decoration != null)
             {
+                // 切换状态
                 decoration.IsVisible = !decoration.IsVisible;
-                //Logger?.LogInfo($"切换装饰物 {decoration.DisplayName} 显示状态为: {decoration.IsVisible}");
+                changedDecorations.Add(name); // 记录状态发生变化的装饰物
                 return decoration.IsVisible;
             }
-            else
-            {
-                Logger?.LogWarning($"ToggleDecorationState: 找不到装饰物 {name}");
-                return false;
-            }
+            return false;
         }
         
         // 获取父级路径
@@ -458,28 +453,38 @@ namespace MoreHead
             return parentPathMap["head"];
         }
         
-        // 关闭所有装饰物
+        // 获取发生状态变化的装饰物集合
+        public static List<string> GetChangedDecorations()
+        {
+            return changedDecorations.ToList();
+        }
+        
+        // 清除变化记录
+        public static void ClearChangedDecorations()
+        {
+            changedDecorations.Clear();
+        }
+        
+        // 禁用所有装饰物
         public static void DisableAllDecorations()
         {
             try
             {
-                int disabledCount = 0;
-                
-                // 遍历所有装饰物并设置为不可见
+                // 关闭所有装饰物
                 foreach (var decoration in Decorations)
                 {
                     if (decoration.IsVisible)
                     {
                         decoration.IsVisible = false;
-                        disabledCount++;
+                        changedDecorations.Add(decoration.Name ?? string.Empty); // 记录变化
                     }
                 }
                 
-                //Logger?.LogInfo($"已关闭所有装饰物，共 {disabledCount} 个");
+                // Logger?.LogInfo("已关闭所有装饰物");
             }
             catch (Exception e)
             {
-                Logger?.LogError($"关闭所有装饰物时出错: {e.Message}");
+                Logger?.LogError($"禁用所有装饰物时出错: {e.Message}");
             }
         }
 

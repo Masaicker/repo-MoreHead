@@ -579,41 +579,50 @@ namespace MoreHead
             }
         }
         
-        // 应用指定的装备方案
+        // 应用装备方案
         private static void ApplyOutfit(int outfitIndex)
         {
             try
             {
-                if (!_outfitStates.TryGetValue(outfitIndex, out var outfit))
+                // 检查有效范围
+                if (outfitIndex < 1 || outfitIndex > 5)
+                {
+                    Logger?.LogWarning($"无效的装备方案索引: {outfitIndex}，使用默认方案1");
+                    outfitIndex = 1;
+                }
+                
+                // 确保字典中有该方案
+                if (!_outfitStates.TryGetValue(outfitIndex, out var outfitStates))
                 {
                     Logger?.LogWarning($"找不到装备方案 {outfitIndex}，使用空方案");
-                    outfit = new Dictionary<string?, bool>();
-                    _outfitStates[outfitIndex] = outfit;
+                    outfitStates = new Dictionary<string?, bool>();
                 }
                 
-                int appliedCount = 0;
-                
-                // 先将所有装饰物设置为不可见
+                // 应用方案中的所有装饰物状态
                 foreach (var decoration in HeadDecorationManager.Decorations)
                 {
-                    decoration.IsVisible = false;
-                }
-                
-                // 遍历所有装饰物
-                foreach (var decoration in HeadDecorationManager.Decorations)
-                {
-                    // 检查是否有保存的状态
-                    if (outfit.TryGetValue(decoration.Name, out bool isVisible))
+                    bool newState = false;
+                    if (outfitStates.TryGetValue(decoration.Name ?? string.Empty, out bool state))
                     {
-                        // 应用保存的状态
-                        decoration.IsVisible = isVisible;
-                        appliedCount++;
+                        newState = state;
+                    }
+                    
+                    // 只有状态不同时才设置，避免不必要的更新
+                    if (decoration.IsVisible != newState)
+                    {
+                        HeadDecorationManager.SetDecorationState(decoration.Name ?? string.Empty, newState);
                     }
                 }
+                
+                // 更新当前方案索引
+                CurrentOutfitIndex = outfitIndex;
+                
+                // 记录日志
+                // Logger?.LogInfo($"已应用装备方案 {outfitIndex}");
             }
             catch (Exception e)
             {
-                Logger?.LogError($"应用装备方案时出错: {e.Message}");
+                Logger?.LogError($"应用装备方案 {outfitIndex} 时出错: {e.Message}");
             }
         }
         

@@ -325,10 +325,52 @@ public class HeadDecorationSync : MonoBehaviourPun
             
             // 移除普通日志，只在调试时需要
             // Morehead.Logger?.LogInfo($"已同步所有装饰物状态，共 {names.Length} 个");
+            
+            // 清除变化记录，因为已经全量同步了
+            HeadDecorationManager.ClearChangedDecorations();
         }
         catch (System.Exception e)
         {
             Morehead.Logger?.LogError($"同步所有装饰物状态失败: {e.Message}");
+        }
+    }
+    
+    // 只同步发生变化的装饰物状态
+    public void SyncChangedDecorations()
+    {
+        try
+        {
+            // 获取变化的装饰物列表
+            var changedList = HeadDecorationManager.GetChangedDecorations();
+            if (changedList.Count == 0) return; // 没有变化，不需要同步
+            
+            // 准备变化数据
+            var names = new string?[changedList.Count];
+            var states = new bool[changedList.Count];
+            var parentTags = new string?[changedList.Count];
+            
+            var i = 0;
+            foreach (var child in changedList)
+            {
+                var decoration = HeadDecorationManager.Decorations.Find(d => d.Name == child);
+                if (decoration == null) continue;
+                names[i] = decoration.Name;
+                states[i] = decoration.IsVisible;
+                parentTags[i] = decoration.ParentTag;
+                i++;
+            }
+            
+            // 发送RPC
+            photonView.RPC("UpdateChangedDecorations", RpcTarget.Others, names, states, parentTags);
+            
+            // 清除变化记录
+            HeadDecorationManager.ClearChangedDecorations();
+            
+            // Morehead.Logger?.LogInfo($"已同步变化的装饰物状态，共 {names.Length} 个");
+        }
+        catch (System.Exception e)
+        {
+            Morehead.Logger?.LogError($"同步变化装饰物状态失败: {e.Message}");
         }
     }
     
@@ -385,6 +427,61 @@ public class HeadDecorationSync : MonoBehaviourPun
         catch (System.Exception e)
         {
             Morehead.Logger?.LogError($"RPC更新所有装饰物状态失败: {e.Message}");
+        }
+    }
+    
+    // RPC方法：只更新发生变化的装饰物
+    [PunRPC]
+    void UpdateChangedDecorations(string[] names, bool[] states, string[] parentTags)
+    {
+        try
+        {
+            // 获取PlayerAvatar组件
+            var playerAvatar = GetComponent<PlayerAvatar>();
+            if (playerAvatar == null || playerAvatar.playerAvatarVisuals == null)
+            {
+                Morehead.Logger?.LogWarning("找不到PlayerAvatar或PlayerAvatarVisuals组件");
+                return;
+            }
+            
+            // 使用通用方法获取父级节点
+            var parentNodes = DecorationUtils.GetDecorationParentNodes(playerAvatar.playerAvatarVisuals.transform);
+            
+            // 检查是否找到了任何父级节点
+            if (parentNodes.Count == 0)
+            {
+                Morehead.Logger?.LogWarning("找不到任何装饰物父级节点");
+                return;
+            }
+            
+            // 确保每个父级节点有装饰物容器
+            DecorationUtils.EnsureDecorationContainers(parentNodes);
+            
+            // 更新每个装饰物
+            for (int i = 0; i < names.Length; i++)
+            {
+                string decorationName = names[i];
+                bool state = states[i];
+                string parentTag = parentTags[i];
+                
+                // 获取对应的父级节点
+                if (parentNodes.TryGetValue(parentTag, out Transform parentNode))
+                {
+                    // 查找装饰物父对象
+                    var decorationsParent = parentNode.Find("HeadDecorations");
+                    if (decorationsParent != null)
+                    {
+                        // 更新装饰物状态
+                        DecorationUtils.UpdateDecoration(decorationsParent, decorationName, state);
+                    }
+                }
+            }
+            
+            // Morehead.Logger?.LogInfo($"通过RPC更新玩家({photonView.Owner.NickName})的变化装饰物状态，共 {names.Length} 个");
+        }
+        catch (System.Exception e)
+        {
+            Morehead.Logger?.LogError($"RPC更新变化装饰物状态失败: {e.Message}");
         }
     }
 }
@@ -858,3 +955,4 @@ class MenuPageStateSetPatch
         }
     }
 }
+
