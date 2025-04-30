@@ -42,7 +42,12 @@ namespace MoreHead
         
         // 日志控制配置选项
         private static ConfigEntry<bool>? _enableVerboseLogging;
-        
+
+        // Config disable list
+        private static ConfigEntry<string>? _disableDecorationConfig;
+
+        private static string[]? _disableDecorationList;
+
         // 装饰物列表
         public static List<DecorationInfo> Decorations { get; private set; } = new List<DecorationInfo>();
         
@@ -78,7 +83,23 @@ namespace MoreHead
                     true,
                     "启用模型加载日志（默认开启） Enable model loading logs (default: on)"
                 );
-                
+
+                // List of comma-separated strings
+                _disableDecorationConfig = Morehead.Instance?.Config.Bind(
+                    "Config",
+                    "DisableDecorationsList",
+                    "ExampleA, ExampleB",
+                    "Disables the listed decorations from loading, separated by commas"
+                );
+
+                // List parser
+                if (_disableDecorationConfig != null && _disableDecorationConfig.Value != "")
+                {
+                    _disableDecorationList = [.. _disableDecorationConfig.Value
+                        .Split(new[] { ',' }, System.StringSplitOptions.RemoveEmptyEntries)
+                        .Select(s => s.Trim())];
+                }
+
                 Logger?.LogInfo("正在初始化装饰物管理器...");
                 
                 // 清空装饰物列表
@@ -323,16 +344,21 @@ namespace MoreHead
                         BundlePath = bundlePath,
                         ModName = GetModNameFromPath(bundlePath)
                     };
-                    
+
                     // 添加到装饰物列表
-                    Decorations.Add(decoration);
-                    if (_enableVerboseLogging?.Value ?? true)
+
+                    // Checks for the DisplayName of the Decoration in DisableDecorationList config
+                    if (!_disableDecorationList.Contains(decoration.DisplayName))
                     {
-                        Logger?.LogInfo($"成功加载装饰物: {decoration.DisplayName}, 标签: {decoration.ParentTag}");
+                        Decorations.Add(decoration);
+                        if (_enableVerboseLogging?.Value ?? true)
+                        {
+                            Logger?.LogInfo($"成功加载装饰物: {decoration.DisplayName}, 标签: {decoration.ParentTag}");
+                        }
+
+                        // 卸载AssetBundle但保留已加载的资源
+                        assetBundle.Unload(false);
                     }
-                    
-                    // 卸载AssetBundle但保留已加载的资源
-                    assetBundle.Unload(false);
                 }
                 catch (Exception e)
                 {
