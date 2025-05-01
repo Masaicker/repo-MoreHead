@@ -1,4 +1,3 @@
----
 <small>
 
 **All models were created by Yuri's cat Calypso, specifically for this mod :3**
@@ -24,7 +23,29 @@ A simple and fun decoration mod that provides a **unitypackage** for players to 
 ![](https://i.imgur.com/jtu0xsM.png)
 <small>*The chicken beak in the screenshot comes from [EvenMoreHead](https://thunderstore.io/c/repo/p/DEMMERS/EvenMoreHead/).</small>
 
+
+# How to Use 如何使用
+
+1. **Install this mod** and enter the game.
+2. You can find the **"MoreHead" button in the bottom left corner** either **in the lobby** or **after entering a level** (press `ESC`).
+3. Click the button to switch cosmetics.
+
+<br>
+
+1. **安装本模组**，进入游戏。
+2. **在大厅准备阶段** 或 **正式进入关卡后按 `ESC`**，都能在左下角找到 **"MoreHead" 按钮**。
+3. 点击按钮切换化妆品。
+
+<br>![](https://i.imgur.com/Wp7ZedO.jpeg)  
+<br>![](https://i.imgur.com/u4v7esZ.jpeg)  
+<br>![](https://i.imgur.com/bKOSgHq.jpeg)
+
+<br><br>
+
 # ⚠️ Compatibility Notice 兼容性说明 ⚠️
+
+<details>
+  <summary>Click to see 点击展开</summary>
 
 <div style="border: 2px solid red; padding: 10px; background-color: #fff0f0;">
 
@@ -58,28 +79,140 @@ For the best experience and stability, we recommend always using the latest vers
 </div>
 
 
-# How to Use 如何使用
+</details>
 
-1. **Install this mod** and enter the game.
-2. You can find the **"MoreHead" button in the bottom left corner** either **in the lobby** or **after entering a level** (press `ESC`).
-3. Click the button to switch cosmetics.
+<br><br>
 
-<br>
 
-1. **安装本模组**，进入游戏。
-2. **在大厅准备阶段** 或 **正式进入关卡后按 `ESC`**，都能在左下角找到 **"MoreHead" 按钮**。
-3. 点击按钮切换化妆品。
 
-<br>![](https://i.imgur.com/Wp7ZedO.jpeg)  
-<br>![](https://i.imgur.com/u4v7esZ.jpeg)  
-<br>![](https://i.imgur.com/bKOSgHq.jpeg)
+# Configuration Options 配置选项
+
+<details>
+  <summary>Click to see 点击展开</summary>
+
+## English
+
+MoreHead provides several configuration options that can be modified in the BepInEx configuration file (`BepInEx/config/Mhz.REPOMoreHead.cfg`):
+
+### UI Settings
+
+| Option | Description | Default |
+| --- | --- | --- |
+| **EscButtonPosX** | X position of MoreHead button in ESC menu | 0 |
+| **EscButtonPosY** | Y position of MoreHead button in ESC menu | 0 |
+| **LobbyButtonPosX** | X position of MoreHead button in lobby | 0 |
+| **LobbyButtonPosY** | Y position of MoreHead button in lobby | 0 |
+
+Adjusting these values allows you to reposition the MoreHead buttons if they conflict with other mod UI elements.
+
+### Blacklist Mode
+
+| Option | Description | Default |
+| --- | --- | --- |
+| **BlacklistMode** | Set to "ENABLE_BLACKLIST" to enable blacklist functionality | "" (disabled) |
+
+When blacklist mode is enabled:
+- Use `Shift + click` on decoration buttons to add/remove items from the blacklist
+- Use `Shift + CLEAR ALL` to clear the entire blacklist at once
+- ⚠️ All blacklist changes take effect after restarting the game
+
+Blacklisted decorations won't appear in your decoration menu, which is useful for hiding items you don't want to use.
+
+### Logging
+
+| Option | Description | Default |
+| --- | --- | --- |
+| **EnableVerboseLogging** | Enable detailed logs for model loading | false |
+
+Enable this option to see more detailed logs about model loading process, helpful for troubleshooting.
+
+### File Locations
+
+| File | Path | Description |
+| --- | --- | --- |
+| **MoreHeadConfig.json** | `[Unity.persistentDataPath]/REPOModData/MoreHead/` | Main configuration file storing decoration states |
+| **MoreHeadOutfits.json** | `[Unity.persistentDataPath]/REPOModData/MoreHead/` | Stores up to 5 sets of outfit configurations |
+| **Mhz.REPOMoreHead.cfg** | `BepInEx/config/` | BepInEx configuration file with UI positioning and other settings |
+| **MoreHeadBlacklist.json** | `BepInEx/config/` | Blacklist file for hiding unwanted decorations |
+| **Decorations (.hhh files)** | `BepInEx/plugins/` or<br>`BepInEx/plugins/MoreHead/Decorations/` | Custom decoration models |
+
+**Note**: `[Unity.persistentDataPath]` typically resolves to:
+- Windows: `C:/Users/[YourName]/AppData/LocalLow/semiwork/Repo/`
+- Linux: `~/.config/unity3d/semiwork/Repo/`
+- Mac: `~/Library/Application Support/semiwork/Repo/`
+
+### File Descriptions
+
+- **MoreHeadConfig.json**: Stores the enabled/disabled state of each decoration (single outfit mode - for backward compatibility)
+- **MoreHeadOutfits.json**: Stores up to 5 different decoration configurations that you can switch between using the UI or function keys F1-F5
+- **Mhz.REPOMoreHead.cfg**: Contains settings for UI button positions, blacklist mode toggle, and logging options
+- **MoreHeadBlacklist.json**: Contains a list of decoration names that should be hidden from the UI menu (requires blacklist mode to be enabled)
+- **Decoration .hhh files**: Asset bundles containing 3D models for decorations, can be placed in either location
+
+## 中文
+
+MoreHead 提供了几个配置选项，可以在BepInEx配置文件中修改（`BepInEx/config/Mhz.REPOMoreHead.cfg`）：
+
+### UI设置
+
+| 选项 | 描述 | 默认值 |
+| --- | --- | --- |
+| **EscButtonPosX** | ESC菜单中MoreHead按钮的X坐标 | 0 |
+| **EscButtonPosY** | ESC菜单中MoreHead按钮的Y坐标 | 0 |
+| **LobbyButtonPosX** | 大厅中MoreHead按钮的X坐标 | 0 |
+| **LobbyButtonPosY** | 大厅中MoreHead按钮的Y坐标 | 0 |
+
+调整这些值可以重新定位MoreHead按钮，避免与其他模组的UI元素冲突。
+
+### 黑名单模式
+
+| 选项 | 描述 | 默认值 |
+| --- | --- | --- |
+| **BlacklistMode** | 设置为"ENABLE_BLACKLIST"以启用黑名单功能 | ""（禁用） |
+
+启用黑名单模式后：
+- 使用 `Shift + 点击` 装饰物按钮来添加/移除黑名单项目
+- 使用 `Shift + CLEAR ALL` 可一次性清空所有黑名单条目
+- ⚠️ 所有黑名单相关操作需重启游戏后才会生效
+
+被列入黑名单的装饰物不会出现在您的装饰菜单中，这对于隐藏您不想使用的物品很有用。
+
+### 日志记录
+
+| 选项 | 描述 | 默认值 |
+| --- | --- | --- |
+| **EnableVerboseLogging** | 启用模型加载的详细日志 | false |
+
+启用此选项可以查看更详细的模型加载过程日志，有助于故障排除。
+
+### 文件位置
+
+| 文件 | 路径 | 描述 |
+| --- | --- | --- |
+| **MoreHeadConfig.json** | `[Unity.persistentDataPath]/REPOModData/MoreHead/` | 主配置文件，存储装饰状态 |
+| **MoreHeadOutfits.json** | `[Unity.persistentDataPath]/REPOModData/MoreHead/` | 存储最多5套装备配置 |
+| **Mhz.REPOMoreHead.cfg** | `BepInEx/config/` | BepInEx配置文件，包含UI定位和其他设置 |
+| **MoreHeadBlacklist.json** | `BepInEx/config/` | 黑名单文件，用于隐藏不需要的装饰 |
+| **装饰文件 (.hhh 文件)** | `BepInEx/plugins/` 或<br>`BepInEx/plugins/MoreHead/Decorations/` | 自定义装饰模型 |
+
+**注意**: `[Unity.persistentDataPath]` 通常对应于:
+- Windows: `C:/Users/[您的用户名]/AppData/LocalLow/semiwork/Repo/`
+- Linux: `~/.config/unity3d/semiwork/Repo/`
+- Mac: `~/Library/Application Support/semiwork/Repo/`
+
+### 文件说明
+
+- **MoreHeadConfig.json**: 存储每个装饰的启用/禁用状态（单套装备模式 - 用于向后兼容）
+- **MoreHeadOutfits.json**: 存储最多5种不同的装饰配置，可以通过UI或功能键F1-F5切换
+- **Mhz.REPOMoreHead.cfg**: 包含UI按钮位置、黑名单模式开关和日志选项的设置
+- **MoreHeadBlacklist.json**: 包含应在UI菜单中隐藏的装饰名称列表（需要启用黑名单模式）
+- **装饰 .hhh 文件**: 包含装饰3D模型的Asset Bundle，可以放置在任一位置
+
+</details>
 
 <br><br>
 
 # How to Add Models 如何添加模型
-
-Click to expand for detailed instructions.  
-<br>点击展开具体说明。  
 
 <details>
   <summary>Click to see 点击展开</summary>
@@ -183,9 +316,6 @@ Click to expand for detailed instructions.
 <br><br>
 
 # Developer API & Extension 开发者API与扩展
-
-Click to expand for API documentation and extension guide.  
-<br>点击展开API文档和扩展指南。  
 
 <details>
   <summary>Click to see 点击展开</summary>

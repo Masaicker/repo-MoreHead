@@ -6,9 +6,9 @@
         <LangVersion>latest</LangVersion>
         
         <!-- 添加程序集版本信息 -->
-        <AssemblyVersion>1.4.0.0</AssemblyVersion>
-        <FileVersion>1.4.0.0</FileVersion>
-        <Version>1.4.0</Version>
+        <AssemblyVersion>1.4.1.0</AssemblyVersion>
+        <FileVersion>1.4.1.0</FileVersion>
+        <Version>1.4.1</Version>
         <Authors>Masaicker, YurisCat</Authors>
         <Company>YMC_MHZ</Company>
         <Product>MoreHead</Product>

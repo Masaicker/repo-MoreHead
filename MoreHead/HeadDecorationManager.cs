@@ -6,9 +6,148 @@ using BepInEx.Logging;
 using UnityEngine;
 using System.Reflection;
 using BepInEx.Configuration;
+using Newtonsoft.Json;
 
 namespace MoreHead
 {
+    // 装饰物黑名单管理器
+    public static class DecorationBlacklistManager
+    {
+        // 日志记录器
+        private static ManualLogSource? Logger => Morehead.Logger;
+        
+        // 黑名单列表，存储装饰物名称
+        private static HashSet<string> _blacklistedDecorations = [];
+        
+        // 黑名单文件路径
+        private static readonly string BlacklistFilePath = Path.Combine(BepInEx.Paths.ConfigPath, "MoreHeadBlacklist.json");
+        
+        // 初始化黑名单
+        public static void Initialize()
+        {
+            try
+            {
+                LoadBlacklist();
+                Logger?.LogInfo($"黑名单管理器初始化完成，已加载 {_blacklistedDecorations.Count} 个黑名单项");
+            }
+            catch (Exception e)
+            {
+                Logger?.LogError($"初始化黑名单管理器时出错: {e.Message}");
+            }
+        }
+        
+        // 加载黑名单
+        public static void LoadBlacklist()
+        {
+            try
+            {
+                // 如果文件不存在，创建一个空的黑名单文件
+                if (!File.Exists(BlacklistFilePath))
+                {
+                    SaveBlacklist();
+                    return;
+                }
+                
+                // 读取黑名单文件
+                string json = File.ReadAllText(BlacklistFilePath);
+                
+                // 反序列化JSON数据
+                var blacklistData = JsonConvert.DeserializeObject<BlacklistData>(json);
+                
+                // 更新黑名单集合
+                if (blacklistData is not null)
+                {
+                    _blacklistedDecorations = new HashSet<string>(blacklistData.DecorationNames);
+                }
+                else
+                {
+                    _blacklistedDecorations.Clear();
+                }
+            }
+            catch (Exception e)
+            {
+                Logger?.LogError($"加载黑名单时出错: {e.Message}");
+                _blacklistedDecorations.Clear();
+            }
+        }
+        
+        // 保存黑名单
+        public static void SaveBlacklist()
+        {
+            try
+            {
+                // 创建黑名单数据对象
+                var blacklistData = new BlacklistData
+                {
+                    DecorationNames = _blacklistedDecorations.ToList()
+                };
+                
+                // 序列化为JSON
+                string json = JsonConvert.SerializeObject(blacklistData, Formatting.Indented);
+                
+                // 写入文件
+                File.WriteAllText(BlacklistFilePath, json);
+                
+                // Logger?.LogInfo($"已保存黑名单，共 {_blacklistedDecorations.Count} 项");
+            }
+            catch (Exception e)
+            {
+                Logger?.LogError($"保存黑名单时出错: {e.Message}");
+            }
+        }
+        
+        // 添加装饰物到黑名单
+        public static void AddToBlacklist(string decorationName)
+        {
+            if (string.IsNullOrEmpty(decorationName)) return;
+            
+            if (_blacklistedDecorations.Add(decorationName))
+            {
+                // Logger?.LogInfo($"已将装饰物 {decorationName} 添加到黑名单");
+                SaveBlacklist();
+            }
+        }
+        
+        // 从黑名单中移除装饰物
+        public static void RemoveFromBlacklist(string decorationName)
+        {
+            if (string.IsNullOrEmpty(decorationName)) return;
+            
+            if (_blacklistedDecorations.Remove(decorationName))
+            {
+                // Logger?.LogInfo($"已将装饰物 {decorationName} 从黑名单中移除");
+                SaveBlacklist();
+            }
+        }
+        
+        // 检查装饰物是否在黑名单中
+        public static bool IsBlacklisted(string decorationName)
+        {
+            return !string.IsNullOrEmpty(decorationName) && _blacklistedDecorations.Contains(decorationName);
+        }
+        
+        // 获取所有黑名单项
+        public static List<string> GetBlacklistedDecorations()
+        {
+            return _blacklistedDecorations.ToList();
+        }
+        
+        // 清除黑名单
+        public static void ClearBlacklist()
+        {
+            _blacklistedDecorations.Clear();
+            SaveBlacklist();
+            Logger?.LogInfo("已清空黑名单");
+        }
+    }
+    
+    // 黑名单数据结构
+    [Serializable]
+    public class BlacklistData
+    {
+        public List<string> DecorationNames { get; set; } = [];
+    }
+    
     // 装饰物信息类
     public class DecorationInfo
     {
@@ -75,8 +214,8 @@ namespace MoreHead
                 _enableVerboseLogging = Morehead.Instance?.Config.Bind(
                     "Logging",
                     "EnableVerboseLogging",
-                    true,
-                    "启用模型加载日志（默认开启） Enable model loading logs (default: on)"
+                    false,
+                    "启用模型加载日志（默认关闭） Enable model loading logs (default: off)"
                 );
                 
                 Logger?.LogInfo("正在初始化装饰物管理器...");
@@ -324,9 +463,19 @@ namespace MoreHead
                         ModName = GetModNameFromPath(bundlePath)
                     };
                     
+                    // 检查是否在黑名单中
+                    if (DecorationBlacklistManager.IsBlacklisted(displayName))
+                    {
+                        if (_enableVerboseLogging?.Value ?? false)
+                        {
+                            Logger?.LogWarning($"跳过黑名单中的装饰物: {displayName}");
+                        }
+                        assetBundle.Unload(true);
+                        return;
+                    }
                     // 添加到装饰物列表
                     Decorations.Add(decoration);
-                    if (_enableVerboseLogging?.Value ?? true)
+                    if (_enableVerboseLogging?.Value ?? false)
                     {
                         Logger?.LogInfo($"成功加载装饰物: {decoration.DisplayName}, 标签: {decoration.ParentTag}");
                     }

@@ -16,7 +16,7 @@ public class Morehead : BaseUnityPlugin
 {
     private const string PluginGuid = "Mhz.REPOMoreHead";
     private const string PluginName = "MoreHead";
-    private const string PluginVersion = "1.4.0";
+    private const string PluginVersion = "1.4.1";
     // 单例实例
     public static Morehead? Instance { get; private set; }
     
@@ -62,6 +62,8 @@ public class Morehead : BaseUnityPlugin
 
             Logger?.LogMessage(asciiArt);
             
+            DecorationBlacklistManager.Initialize();
+
             // 初始化装饰物管理器
             HeadDecorationManager.Initialize();
             
@@ -654,7 +656,6 @@ class PlayerAvatarVisualsPatch
                         }
                     }
                 }
-                Debug.Log("菜单");
             }
             else
             {

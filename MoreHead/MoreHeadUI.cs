@@ -21,6 +21,9 @@ namespace MoreHead
     {
         // 日志记录器
         private static ManualLogSource? Logger => Morehead.Logger;
+
+        // 黑名单模式配置
+        private static ConfigEntry<string>? _blacklistModeKey;
         
         // UI元素
         public static REPOPopupPage? decorationsPage;
@@ -76,6 +79,22 @@ namespace MoreHead
         {
             try
             {
+                // 初始化黑名单模式配置
+                _blacklistModeKey = Morehead.Instance?.Config.Bind(
+                    "Blacklist",
+                    "BlacklistMode",
+                    "",
+                    "黑名单模式：设置为 \"ENABLE_BLACKLIST\"（不含引号）以启用。\n" +
+                    "启用后可通过 Shift + 点击装饰物按钮 添加/移除 黑名单项目。\n" +
+                    "使用 Shift + CLEAR ALL 可一次性清空所有黑名单条目。\n" +
+                    "⚠️ 所有黑名单相关操作需重启游戏后才会生效。\n\n" +
+                    "Blacklist mode: set to \"ENABLE_BLACKLIST\" to enable.\n" +
+                    "When enabled, use Shift + click on decoration buttons to add/remove items from the blacklist.\n" +
+                    "Use Shift + CLEAR ALL to clear the entire blacklist at once.\n" +
+                    "⚠️ All blacklist changes take effect after restarting the game."
+                );
+
+                
                 // 初始化ESC菜单按钮位置配置
                 escButtonPosX = Morehead.Instance?.Config.Bind(
                     "UI",
@@ -562,7 +581,39 @@ namespace MoreHead
                     return;
                 }
                 
-                // 切换装饰物状态
+                // 检查是否处于黑名单模式
+                string blacklistModeKey = _blacklistModeKey?.Value ?? string.Empty;
+                bool isBlacklistModeActive = blacklistModeKey == "ENABLE_BLACKLIST";
+                
+                // 检查是否按下了shift键
+                bool isShiftPressed = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+                
+                // 先判断是否处于黑名单模式
+                if (isBlacklistModeActive && isShiftPressed)
+                {
+                    // 确保DisplayName不为空
+                    string displayName = decoration.DisplayName ?? string.Empty;
+                    
+                    // 检查装饰物是否已在黑名单中
+                    bool isBlacklisted = DecorationBlacklistManager.IsBlacklisted(displayName);
+                    
+                    if (isBlacklisted)
+                    {
+                        // 从黑名单中移除
+                        DecorationBlacklistManager.RemoveFromBlacklist(displayName);
+                    }
+                    else
+                    {
+                        // 添加到黑名单
+                        DecorationBlacklistManager.AddToBlacklist(displayName);
+                    }
+                    
+                    // 刷新UI状态
+                    UpdateButtonStates();
+                    return;
+                }
+                
+                // 正常操作：切换装饰物状态
                 bool newState = HeadDecorationManager.ToggleDecorationState(decorationName);
                 
                 // 更新按钮文本缓存
@@ -665,7 +716,28 @@ namespace MoreHead
                 subTagDisplay = $"<color={tagColor}><size=12>({parentTag})</size></color> ";
             }
             
-            // 返回格式化的按钮文本
+            // 检查是否处于黑名单模式
+            string blacklistModeKey = _blacklistModeKey?.Value ?? string.Empty;
+            bool isBlacklistModeActive = blacklistModeKey == "ENABLE_BLACKLIST";
+            
+            // 处理黑名单显示效果
+            // 只有在黑名单模式下才检查物品是否被拉黑
+            if (isBlacklistModeActive)
+            {
+                // 检查是否在黑名单中
+                bool isBlacklisted = DecorationBlacklistManager.IsBlacklisted(decoration.DisplayName ?? string.Empty);
+                
+                // 如果该物品在黑名单中，则使用删除线和灰色显示
+                if (isBlacklisted)
+                {
+                    // 使用删除线和灰色显示名称
+                    string grayTagColor = "#888888"; // 灰色
+                    subTagDisplay = $"<color={grayTagColor}><size=12>({parentTag})</size></color> ";
+                    return $"<s><size=16>{(isEnabled ? "<color=#888888>[+]</color>" : "<color=#888888>[-]</color>")} {subTagDisplay}<color=#888888>{name}</color></size></s>";
+                }
+            }
+            
+            // 返回格式化的按钮文本（非黑名单物品）
             return $"<size=16>{(isEnabled ? "<color=#00FF00>[+]</color>" : "<color=#FF0000>[-]</color>")} {subTagDisplay}{name}</size>";
         }
         
@@ -830,6 +902,25 @@ namespace MoreHead
         {
             try
             {
+                // 检查是否处于黑名单模式
+                string blacklistModeKey = _blacklistModeKey?.Value ?? string.Empty;
+                bool isBlacklistModeActive = blacklistModeKey == "ENABLE_BLACKLIST";
+                
+                // 检查是否按下了shift键
+                bool isShiftPressed = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift);
+                
+                // 在黑名单模式下按住Shift键，清空黑名单
+                if (isBlacklistModeActive && isShiftPressed)
+                {
+                    // 清空黑名单
+                    DecorationBlacklistManager.ClearBlacklist();
+                    
+                    // 更新所有按钮状态
+                    UpdateButtonStates();
+                    
+                    return;
+                }
+                
                 // 关闭所有装饰物
                 HeadDecorationManager.DisableAllDecorations();
                 
