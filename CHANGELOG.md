@@ -3,10 +3,14 @@
 * 支持通过 **Shift + 点击化妆品按钮** 添加或移除黑名单项目
 * 支持使用 **Shift + CLEAR ALL** 快速清空所有黑名单条目
 * 所有黑名单相关更改需重启游戏后生效
+* 推荐由一名玩家维护黑名单，通过分享模组代码或直接发送 `BepInEx/config/MoreHeadBlacklist.json` 文件，以保证多人游戏时外观同步
+
 * Blacklist Mode: can be enabled via config (set to `"ENABLE_BLACKLIST"`)
 * Supports **Shift + click** on cosmetic buttons to add or remove blacklist entries
 * Supports **Shift + CLEAR ALL** to quickly clear all blacklist entries
 * All blacklist changes take effect after restarting the game
+* It's recommended that one player manages the blacklist and shares it via mod code or the `BepInEx/config/MoreHeadBlacklist.json` file to ensure appearance sync in multiplayer
+
 
 # v1.4.0
 * 压缩了网络传输数据，略微提高了联机性能

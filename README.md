@@ -118,6 +118,8 @@ When blacklist mode is enabled:
 
 Blacklisted decorations won't appear in your decoration menu, which is useful for hiding items you don't want to use.
 
+> <mark>💡It's recommended that one player manages the blacklist and shares it via mod code or the `BepInEx/config/MoreHeadBlacklist.json` file to ensure appearance sync in multiplayer</mark>
+
 ### Logging
 
 | Option | Description | Default |
@@ -176,6 +178,8 @@ MoreHead 提供了几个配置选项，可以在BepInEx配置文件中修改（`
 - ⚠️ 所有黑名单相关操作需重启游戏后才会生效
 
 被列入黑名单的装饰物不会出现在您的装饰菜单中，这对于隐藏您不想使用的物品很有用。
+
+> <mark>💡推荐由一名玩家维护黑名单，通过分享模组代码或直接发送 `BepInEx/config/MoreHeadBlacklist.json` 文件，以保证多人游戏时外观同步</mark>
 
 ### 日志记录
 
