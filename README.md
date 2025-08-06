@@ -11,12 +11,14 @@
 # Introduction 简介
 A simple and fun decoration mod that provides a **unitypackage** for players to import custom models.
 <br>Currently, only a few decorations are available, but more updates are planned.
-<br>**`nickklmao-MenuLib`** mod is required as a prerequisite.
+<br>[nickklmao-MenuLib](https://thunderstore.io/c/repo/p/nickklmao/MenuLib/) mod is required as a prerequisite.
+<br>if you encounter strength loss problems, please download the [fixstrength](https://thunderstore.io/c/repo/p/YMC_MHZ/fixstrength/) mod.
 <br>
 
 简单好玩的装饰模组，提供 **unitypackage**，供玩家导入自定义模型。
 <br>目前仅有少量装饰，未来会持续更新。
-<br>需安装 **`nickklmao-MenuLib`** 前置模组。
+<br>需安装 [nickklmao-MenuLib](https://thunderstore.io/c/repo/p/nickklmao/MenuLib/) 前置模组。
+<br>如果遇到力量丢失问题，请下载 [fixstrength](https://thunderstore.io/c/repo/p/YMC_MHZ/fixstrength/) 模组。
 
 ![](https://i.imgur.com/7wmnl1P.png)
 <br>
@@ -173,11 +175,11 @@ MoreHead 提供了几个配置选项，可以在BepInEx配置文件中修改（`
 | **BlacklistMode** | 设置为"ENABLE_BLACKLIST"以启用黑名单功能 | ""（禁用） |
 
 启用黑名单模式后：
-- 使用 `Shift + 点击` 装饰物按钮来添加/移除黑名单项目
+- 使用 `Shift + 点击` 化妆品按钮来添加/移除黑名单项目
 - 使用 `Shift + CLEAR ALL` 可一次性清空所有黑名单条目
 - ⚠️ 所有黑名单相关操作需重启游戏后才会生效
 
-被列入黑名单的装饰物不会出现在您的装饰菜单中，这对于隐藏您不想使用的物品很有用。
+被列入黑名单的化妆品不会出现在您的装饰菜单中，这对于隐藏您不想使用的物品很有用。
 
 > <mark>💡推荐由一名玩家维护黑名单，通过分享模组代码或直接发送 `BepInEx/config/MoreHeadBlacklist.json` 文件，以保证多人游戏时外观同步。<br>💡分享前请务必关闭黑名单模式（清空配置项字符串），以避免其他玩家误触导致数据不同步。</mark>
 

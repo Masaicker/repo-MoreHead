@@ -1,3 +1,7 @@
+# v1.4.2
+* 添加了fixstrength模组的链接到README
+* Added fixstrength mod link to README
+
 # v1.4.1
 * 黑名单模式（Blacklist Mode）：可通过配置项启用（设置为 `"ENABLE_BLACKLIST"`）
 * 支持通过 **Shift + 点击化妆品按钮** 添加或移除黑名单项目

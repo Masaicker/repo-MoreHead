@@ -20,3 +20,6 @@ Currently, we know that **r2modman** can sometimes cause Chinese characters in t
 
 At the moment, there's no specific fix for this. If other add-on cosmetic mods display normally but base cosmetics do not, the problem is likely caused by the **font encoding issue during loading**.
 
+## 6. What should I do if I experience strength loss during gameplay?
+If you encounter strength loss issues during gameplay, try downloading the **fixstrength** mod to resolve this problem. This mod can help restore and maintain your character's strength values properly.
+

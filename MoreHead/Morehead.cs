@@ -16,7 +16,7 @@ public class Morehead : BaseUnityPlugin
 {
     private const string PluginGuid = "Mhz.REPOMoreHead";
     private const string PluginName = "MoreHead";
-    private const string PluginVersion = "1.4.1";
+    private const string PluginVersion = "1.4.2";
     // 单例实例
     public static Morehead? Instance { get; private set; }
     
