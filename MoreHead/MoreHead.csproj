@@ -6,9 +6,9 @@
         <LangVersion>latest</LangVersion>
         
         <!-- 添加程序集版本信息 -->
-        <AssemblyVersion>1.4.2.0</AssemblyVersion>
-        <FileVersion>1.4.2.0</FileVersion>
-        <Version>1.4.2</Version>
+        <AssemblyVersion>1.4.3.0</AssemblyVersion>
+        <FileVersion>1.4.3.0</FileVersion>
+        <Version>1.4.3</Version>
         <Authors>Masaicker, YurisCat</Authors>
         <Company>YMC_MHZ</Company>
         <Product>MoreHead</Product>
@@ -22,67 +22,23 @@
         <GenerateDocumentationFile>false</GenerateDocumentationFile>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <RepoPath Condition="'$(RepoPath)' == ''">E:\Steam\steamapps\common\REPO\REPO_Data\Managed\</RepoPath>
+        <BepInExPath Condition="'$(BepInExPath)' == ''">D:\zd\ModEditor\Gale\Game\repo\profiles\newdev\BepInEx\core\</BepInExPath>
+        <MenuLibPath Condition="'$(MenuLibPath)' == ''">D:\zd\ModEditor\Gale\Game\repo\profiles\newdev\BepInEx\plugins\nickklmao-MenuLib\</MenuLibPath>
+        <SubPath Condition="'$(SubPath)' == ''" />
+    </PropertyGroup>
+
+    
     <ItemGroup>
-      <Reference Include="0Harmony">
-        <HintPath>..\..\..\yinyong\BepInEx\core\0Harmony.dll</HintPath>
-      </Reference>
-      <Reference Include="Assembly-CSharp">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\Assembly-CSharp.dll</HintPath>
-      </Reference>
-      <Reference Include="Assembly-CSharp-firstpass">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
-      </Reference>
-      <Reference Include="BepInEx">
-        <HintPath>..\..\..\yinyong\BepInEx\core\BepInEx.dll</HintPath>
-      </Reference>
-      <Reference Include="Facepunch.Steamworks.Win64">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\Facepunch.Steamworks.Win64.dll</HintPath>
-      </Reference>
-      <Reference Include="MenuLib">
-        <HintPath>..\..\..\lib\MenuLib\2.3.0\MenuLib.dll</HintPath>
-      </Reference>
-      <Reference Include="Newtonsoft.Json">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\Newtonsoft.Json.dll</HintPath>
-      </Reference>
-      <Reference Include="Photon3Unity3D">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\Photon3Unity3D.dll</HintPath>
-      </Reference>
-      <Reference Include="PhotonRealtime">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\PhotonRealtime.dll</HintPath>
-      </Reference>
-      <Reference Include="PhotonUnityNetworking">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\PhotonUnityNetworking.dll</HintPath>
-      </Reference>
-      <Reference Include="System">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\System.dll</HintPath>
-      </Reference>
-      <Reference Include="Unity.TextMeshPro">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\Unity.TextMeshPro.dll</HintPath>
-      </Reference>
-      <Reference Include="UnityEngine">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\UnityEngine.dll</HintPath>
-      </Reference>
-      <Reference Include="UnityEngine.AssetBundleModule">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\UnityEngine.AssetBundleModule.dll</HintPath>
-      </Reference>
-      <Reference Include="UnityEngine.CoreModule">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
-      </Reference>
-      <Reference Include="UnityEngine.ImageConversionModule">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\UnityEngine.ImageConversionModule.dll</HintPath>
-      </Reference>
-      <Reference Include="UnityEngine.InputLegacyModule">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
-      </Reference>
-      <Reference Include="UnityEngine.PhysicsModule">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
-      </Reference>
-      <Reference Include="UnityEngine.UI">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\UnityEngine.UI.dll</HintPath>
-      </Reference>
-      <Reference Include="UnityEngine.UIModule">
-        <HintPath>E:\Steam\steamapps\common\REPO\REPO_Data\Managed\UnityEngine.UIModule.dll</HintPath>
-      </Reference>
+        <Reference Include="$(RepoPath)$(SubPath)*Unity*" Private="false" />
+        <Reference Include="$(RepoPath)$(SubPath)Assembly-CSharp*" Private="false" />
+        <Reference Include="$(RepoPath)$(SubPath)Newtonsoft*" Private="false" />
+        <Reference Include="$(RepoPath)$(SubPath)Photon*" Private="false" />
+        <Reference Include="$(RepoPath)$(SubPath)*Steamworks*" Private="false" />
+        <Reference Include="$(BepInExPath)BepInEx.dll" Private="false" />
+        <Reference Include="$(BepInExPath)0Harmony.dll" Private="false" />
+        <Reference Include="$(MenuLibPath)MenuLib.dll" Private="false" />
     </ItemGroup>
 
 </Project>

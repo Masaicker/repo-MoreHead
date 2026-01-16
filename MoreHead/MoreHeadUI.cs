@@ -458,14 +458,48 @@ namespace MoreHead
                 const int x = 50;
                 const int y = 295;
                 
+                // 获取Steam语言
+                string? steamLanguage = null;
+                try
+                {
+                    if (SteamClient.IsValid)
+                    {
+                        steamLanguage = SteamUtils.SteamUILanguage;
+                    }
+                }
+                catch
+                {
+                    // Steam未初始化，使用默认英文
+                }
+                
+                // 根据语言决定本地化文本
+                string labelText;
+                string placeholderText;
+                
+                if (steamLanguage != null && steamLanguage.ToLower().StartsWith("schinese"))
+                {
+                    labelText = "<size=12>搜索</size>";
+                    placeholderText = "<size=13>输入...</size>";
+                }
+                else if (steamLanguage != null && steamLanguage.ToLower().StartsWith("tchinese"))
+                {
+                    labelText = "<size=12>搜尋</size>";
+                    placeholderText = "<size=13>輸入...</size>";
+                }
+                else
+                {
+                    labelText = "<size=12>SEARCH</size>";
+                    placeholderText = "Type to filter...";
+                }
+                
                 page?.AddElement(parent => {
                     searchInputField = MenuAPI.CreateREPOInputField(
-                        "<size=12>SEARCH:</size>",           // Label text
+                        labelText,                           // Label text
                         OnSearchValueChanged,                 // Callback
                         parent,                               // Parent transform
                         new Vector2(x, y),                    // Position
                         onlyNotifyOnSubmit: false,            // Real-time filtering
-                        placeholder: "Type to filter...",     // Placeholder
+                        placeholder: placeholderText,         // Placeholder
                         defaultValue: ""                      // Start empty
                     );
                 });
@@ -477,7 +511,7 @@ namespace MoreHead
         }
         
         // 搜索输入值变化回调
-        private static void OnSearchValueChanged(string searchQuery)
+        private static void OnSearchValueChanged(string? searchQuery)
         {
             try
             {
@@ -531,22 +565,16 @@ namespace MoreHead
                 else
                 {
                     string searchLower = currentSearchQuery.ToLower();
-                    
-                    var matchingNames = new HashSet<string>(
-                        decorations
-                            .Where(d => d.DisplayName?.ToLower().Contains(searchLower) ?? false)
-                            .Select(d => d.Name ?? "")
-                            .Where(name => !string.IsNullOrEmpty(name))
-                    );
-                    
-                    foreach (var kvp in decorationButtons)
+
+                    // 直接遍历当前标签的装饰物数据，避免遍历所有按钮
+                    foreach (var decoration in decorations)
                     {
-                        string decorationName = kvp.Key ?? "";
-                        REPOButton button = kvp.Value;
-                        
-                        if (button != null && elements.Contains(button.repoScrollViewElement))
+                        if (decorationButtons.TryGetValue(decoration.Name ?? string.Empty, out REPOButton button) &&
+                            button != null &&
+                            elements.Contains(button.repoScrollViewElement))  // 兼容分组功能
                         {
-                            button.repoScrollViewElement.visibility = matchingNames.Contains(decorationName);
+                            button.repoScrollViewElement.visibility =
+                                decoration.DisplayName?.ToLower().Contains(searchLower) == true;
                         }
                     }
                 }

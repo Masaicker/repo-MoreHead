@@ -8,15 +8,18 @@ using Quaternion = UnityEngine.Quaternion;
 using Vector3 = UnityEngine.Vector3;
 using MoreHead;
 using System;
+using System.Reflection;
 using TMPro;
 using System.Linq;
+using System.Reflection.Emit;
+using MenuLib.MonoBehaviors;
 
 [BepInPlugin(PluginGuid, PluginName, PluginVersion)]
 public class Morehead : BaseUnityPlugin
 {
     private const string PluginGuid = "Mhz.REPOMoreHead";
     private const string PluginName = "MoreHead";
-    private const string PluginVersion = "1.4.2";
+    private const string PluginVersion = "1.4.3";
     // 单例实例
     public static Morehead? Instance { get; private set; }
     
@@ -46,6 +49,8 @@ public class Morehead : BaseUnityPlugin
             harmony.PatchAll(typeof(MenuButtonHoveringPatch));
             harmony.PatchAll(typeof(MenuButtonHoverEndPatch));
             harmony.PatchAll(typeof(MenuPageStateSetPatch));
+            harmony.PatchAll(typeof(MenuScrollBox_Update_Patch));
+            harmony.PatchAll(typeof(REPOInputStringSystem_HandleInput_Patch));
             
             string asciiArt = @$"
 
@@ -1080,3 +1085,192 @@ class MenuPageStateSetPatch
         }
     }
 }
+
+[HarmonyPatch(typeof(MenuScrollBox))]
+[HarmonyPatch("Update")]
+class MenuScrollBox_Update_Patch
+{
+    // AccessTools 委托 - 首次调用时生成动态方法，后续直接调用，性能接近原生
+    private static readonly AccessTools.FieldRef<MenuScrollBox, MenuPage> GetParentPage =
+        AccessTools.FieldRefAccess<MenuScrollBox, MenuPage>("parentPage");
+
+    // MenuPage 的字段访问器
+    private static readonly AccessTools.FieldRef<MenuPage, int> GetPageScrollBoxes =
+        AccessTools.FieldRefAccess<MenuPage, int>("scrollBoxes");
+
+    private static readonly AccessTools.FieldRef<MenuScrollBox, MenuElementHover> GetMenuElementHover =
+        AccessTools.FieldRefAccess<MenuScrollBox, MenuElementHover>("menuElementHover");
+    private static readonly AccessTools.FieldRef<MenuScrollBox, bool> refScrollBoxActive =
+        AccessTools.FieldRefAccess<MenuScrollBox, bool>("scrollBoxActive");
+    private static readonly AccessTools.FieldRef<MenuScrollBox, GameObject> GetScrollBar =
+        AccessTools.FieldRefAccess<MenuScrollBox, GameObject>("scrollBar");
+    private static readonly AccessTools.FieldRef<MenuScrollBox, RectTransform> GetScrollHandle =
+        AccessTools.FieldRefAccess<MenuScrollBox, RectTransform>("scrollHandle");
+    private static readonly AccessTools.FieldRef<MenuScrollBox, float> refScrollHandleTargetPosition =
+        AccessTools.FieldRefAccess<MenuScrollBox, float>("scrollHandleTargetPosition");
+    private static readonly AccessTools.FieldRef<MenuScrollBox, RectTransform> GetScrollBarBackground =
+        AccessTools.FieldRefAccess<MenuScrollBox, RectTransform>("scrollBarBackground");
+    private static readonly AccessTools.FieldRef<MenuScrollBox, float> refScrollAmount =
+        AccessTools.FieldRefAccess<MenuScrollBox, float>("scrollAmount");
+    private static readonly AccessTools.FieldRef<MenuScrollBox, RectTransform> GetScroller =
+        AccessTools.FieldRefAccess<MenuScrollBox, RectTransform>("scroller");
+    private static readonly AccessTools.FieldRef<MenuScrollBox, float> GetScrollerStartPosition =
+        AccessTools.FieldRefAccess<MenuScrollBox, float>("scrollerStartPosition");
+    private static readonly AccessTools.FieldRef<MenuScrollBox, float> GetScrollerEndPosition =
+        AccessTools.FieldRefAccess<MenuScrollBox, float>("scrollerEndPosition");
+    private static readonly AccessTools.FieldRef<MenuScrollBox, MenuSelectableElement> GetMenuSelectableElement =
+        AccessTools.FieldRefAccess<MenuScrollBox, MenuSelectableElement>("menuSelectableElement");
+
+    // MenuElementHover 和 MenuSelectableElement 的内部字段访问器
+    private static readonly AccessTools.FieldRef<MenuElementHover, bool> GetIsHovering =
+        AccessTools.FieldRefAccess<MenuElementHover, bool>("isHovering");
+    private static readonly AccessTools.FieldRef<MenuSelectableElement, string> GetMenuID =
+        AccessTools.FieldRefAccess<MenuSelectableElement, string>("menuID");
+
+    [HarmonyPrefix]
+    static bool Prefix(MenuScrollBox __instance)
+    {
+        // 只拦截 MoreHead 的装饰页面
+        if (MoreHeadUI.decorationsPage == null ||
+            GetParentPage(__instance) != MoreHeadUI.decorationsPage.menuPage)
+            return true; // 非 MoreHead 页面，执行原方法
+
+        var parentPage = GetParentPage(__instance);
+        var scrollBar = GetScrollBar(__instance);
+        var scrollHandle = GetScrollHandle(__instance);
+        var scrollBarBackground = GetScrollBarBackground(__instance);
+        var scroller = GetScroller(__instance);
+
+        // 更新 scrollBoxActive 状态
+        if (GetPageScrollBoxes(parentPage) > 1)
+        {
+            refScrollBoxActive(__instance) = GetIsHovering(GetMenuElementHover(__instance));
+        }
+
+        if (!scrollBar.activeSelf)
+        {
+            // 滚动条隐藏时，仍然需要更新滑块和 scroller 位置（用于 SetScrollPosition 立即生效）
+            scrollHandle.localPosition = new Vector3(
+                scrollHandle.localPosition.x,
+                refScrollHandleTargetPosition(__instance),
+                scrollHandle.localPosition.z
+            );
+            return false;
+        }
+
+        if (!refScrollBoxActive(__instance))
+        {
+            // 不激活时，仍然更新滑块位置（用于 SetScrollPosition 立即生效）
+            scrollHandle.localPosition = new Vector3(
+                scrollHandle.localPosition.x,
+                Mathf.Lerp(scrollHandle.localPosition.y, refScrollHandleTargetPosition(__instance), Time.deltaTime * 20f),
+                scrollHandle.localPosition.z
+            );
+
+            refScrollAmount(__instance) = Mathf.Clamp01(
+                (scrollHandle.localPosition.y + scrollHandle.sizeDelta.y / 2f) / scrollBarBackground.rect.height
+            );
+
+            scroller.localPosition = new Vector3(
+                scroller.localPosition.x,
+                Mathf.Lerp(GetScrollerStartPosition(__instance), GetScrollerEndPosition(__instance), refScrollAmount(__instance)),
+                scroller.localPosition.z
+            );
+            return false;
+        }
+
+        // 鼠标拖动滑块逻辑
+        if (Input.GetMouseButton(0) && SemiFunc.UIMouseHover(parentPage, scrollBarBackground, GetMenuID(GetMenuSelectableElement(__instance)), 0f, 0f))
+        {
+            float num = SemiFunc.UIMouseGetLocalPositionWithinRectTransform(scrollBarBackground).y;
+            num = Mathf.Clamp(num, scrollHandle.sizeDelta.y / 2f, scrollBarBackground.rect.height - scrollHandle.sizeDelta.y / 2f);
+            refScrollHandleTargetPosition(__instance) = num;
+        }
+
+        // 键盘/滚轮输入
+        float yMovementInput = SemiFunc.InputMovementY() / 20f;
+        float yMouseScroll = SemiFunc.InputScrollY();
+
+        if (!Mathf.Approximately(yMovementInput, 0f) || !Mathf.Approximately(yMouseScroll, 0f))
+        {
+            float scrollableHeight = Mathf.Abs(GetScrollerEndPosition(__instance) - GetScrollerStartPosition(__instance));
+            if (scrollableHeight > 0f)
+            {
+                float scrollSpeed = 100f;
+                float amountToScroll = !Mathf.Approximately(yMouseScroll, 0f)
+                    ? (yMovementInput + Mathf.Sign(yMouseScroll)) * scrollSpeed / scrollableHeight * scrollBarBackground.rect.height
+                    : yMovementInput * scrollSpeed / scrollableHeight * scrollBarBackground.rect.height;
+
+                refScrollHandleTargetPosition(__instance) += amountToScroll;
+            }
+
+            refScrollHandleTargetPosition(__instance) = Mathf.Clamp(
+                refScrollHandleTargetPosition(__instance),
+                scrollHandle.sizeDelta.y / 2f,
+                scrollBarBackground.rect.height - scrollHandle.sizeDelta.y / 2f
+            );
+        }
+
+        // 更新滑块位置
+        scrollHandle.localPosition = new Vector3(
+            scrollHandle.localPosition.x,
+            Mathf.Lerp(scrollHandle.localPosition.y, refScrollHandleTargetPosition(__instance), Time.deltaTime * 20f),
+            scrollHandle.localPosition.z
+        );
+
+        // 计算 scrollAmount
+        refScrollAmount(__instance) = Mathf.Clamp01(
+            (scrollHandle.localPosition.y + scrollHandle.sizeDelta.y / 2f) / scrollBarBackground.rect.height
+        );
+
+        // 更新 scroller 位置
+        scroller.localPosition = new Vector3(
+            scroller.localPosition.x,
+            Mathf.Lerp(GetScrollerStartPosition(__instance), GetScrollerEndPosition(__instance), refScrollAmount(__instance)),
+            scroller.localPosition.z
+        );
+
+        return false;
+    }
+}
+
+// 修复 REPOInputStringSystem 退格时因卡顿导致积累多个字符产生乱码的问题
+[HarmonyPatch(typeof(REPOInputStringSystem))]
+[HarmonyPatch("HandleInput")]
+class REPOInputStringSystem_HandleInput_Patch
+{
+    static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+    {
+        // 找到 Input.inputString 的获取
+        var inputStreamGetter = typeof(Input).GetProperty("inputString")?.GetGetMethod();
+        if (inputStreamGetter == null)
+            yield break;
+
+        foreach (var inst in instructions)
+        {
+            yield return inst;
+
+            // 在获取 Input.inputString 后，插入处理多个退格字符的代码
+            if (inst.opcode == OpCodes.Call && (MethodInfo)inst.operand == inputStreamGetter)
+            {
+                // 弹出 Input.inputString，调用 ProcessMultipleBackspaces
+                yield return new CodeInstruction(OpCodes.Call, typeof(REPOInputStringSystem_HandleInput_Patch).GetMethod("ProcessMultipleBackspaces", BindingFlags.Static | BindingFlags.NonPublic));
+            }
+        }
+    }
+
+    static string ProcessMultipleBackspaces(string input)
+    {
+        if (string.IsNullOrEmpty(input))
+            return input;
+
+        // 如果包含连续的退格，只保留一个（避免卡顿导致的积累）
+        // 实际上原代码的 switch 只处理第一个字符，所以这里把多余的退格过滤掉
+        if (input.Length > 1 && input.Contains("\b"))
+        {
+            return "\b";
+        }
+        return input;
+    }
+}
+

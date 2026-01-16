@@ -1,3 +1,11 @@
+# v1.4.3
+* 修复MenuLib移除MenuScrollBox.Update IL hook后产生的滚动交互问题
+* 添加搜索框功能
+* 修复输入框退格键延迟累积导致的乱码问题
+* Fixed scrolling interaction issues after MenuLib removed MenuScrollBox.Update IL hook
+* Added search box 
+* Fixed backspace key input corruption caused by delay accumulation
+
 # v1.4.2
 * 添加了fixstrength模组的链接到README
 * Added fixstrength mod link to README

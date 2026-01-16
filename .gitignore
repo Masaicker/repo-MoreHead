@@ -57,6 +57,7 @@ artifacts/
 
 # Rider
 .idea/
+.serena
 *.sln.iml
 **/bin/
 **/obj/
