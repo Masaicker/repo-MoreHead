@@ -41,6 +41,10 @@ namespace MoreHead
         private static string currentTagFilter = "ALL";
         private static Dictionary<string, REPOButton> tagFilterButtons = new();
         
+        // Search functionality
+        private static string currentSearchQuery = "";
+        private static REPOInputField? searchInputField;
+        
         // 装饰物数据缓存 - 存储所有标签的装饰物数据
         private static Dictionary<string, List<DecorationInfo>> decorationDataCache = new();
         
@@ -60,7 +64,7 @@ namespace MoreHead
 
         // 按钮和页面名称常量
         private const string BUTTON_NAME = "<color=#FF0000>M</color><color=#FF3300>O</color><color=#FF6600>R</color><color=#FF9900>E</color><color=#FFCC00>H</color><color=#FFDD00>E</color><color=#FFEE00>A</color><color=#FFFF00>D</color>";
-        private static readonly string PAGE_TITLE = $"Rotate robot: A/D <size=12><color=#AAAAAA>v{Morehead.GetPluginVersion()}</color></size>";
+        private static readonly string PAGE_TITLE = "Rotate robot: A/D";
         
         // 所有可用标签
         private static readonly string[] ALL_TAGS = { "ALL", "HEAD", "NECK", "BODY", "HIP", "LIMBS", "WORLD" };
@@ -253,6 +257,9 @@ namespace MoreHead
                     // 创建标签筛选按钮
                     CreateTagFilterButtons(decorationsPage);
                     
+                    // 创建搜索输入框
+                    CreateSearchInputField(decorationsPage);
+                    
                     // 添加作者标记
                     AddAuthorCredit(decorationsPage);
                     
@@ -293,7 +300,7 @@ namespace MoreHead
                 // 设置页面大小和位置
                 //page.rectTransform.sizeDelta = new Vector2(300f, 350f);
                 page.pageDimmerVisibility = true;
-                page.maskPadding = new Padding(10f, 10f, 20f, 10f);
+                page.maskPadding = new Padding(10f, 20f, 10f, 10f);
                 page.headerTMP.rectTransform.position = new Vector3(170, 344, 0);
                 page.pageDimmerOpacity = 0.85f;
                 page.scrollView.scrollSpeed = 4f;
@@ -328,22 +335,23 @@ namespace MoreHead
                     }
                     
                     string authorText;
+                    string versionText = $"<size=10><color=#AAAAAA>v{Morehead.GetPluginVersion()}</color></size>";
                     
                     // 根据Steam客户端语言决定显示文本
                     if (steamLanguage != null && steamLanguage.ToLower().StartsWith("schinese"))
                     {
                         // 简体中文
-                        authorText = "<size=10>由<color=#FFFFA0>马赛克了</color>和<color=#FFFFA0>尤里的猫</color>共同制作。</size>";
+                        authorText = $"<size=10>由<color=#FFFFA0>马赛克了</color>和<color=#FFFFA0>尤里的猫</color>共同制作。</size> {versionText}";
                     }
                     else if (steamLanguage != null && steamLanguage.ToLower().StartsWith("tchinese"))
                     {
                         // 繁体中文
-                        authorText = "<size=10>由<color=#FFFFA0>馬賽克了</color>和<color=#FFFFA0>尤里的貓</color>共同製作。</size>";
+                        authorText = $"<size=10>由<color=#FFFFA0>馬賽克了</color>和<color=#FFFFA0>尤里的貓</color>共同製作。</size> {versionText}";
                     }
                     else
                     {
                         // 其他语言或Steam未初始化时只显示英文
-                        authorText = "<size=10><color=#FFFFA0>Masaicker</color> and <color=#FFFFA0>Yuriscat</color> co-developed.</size>";
+                        authorText = $"<size=10><color=#FFFFA0>Masaicker</color> and <color=#FFFFA0>Yuriscat</color> co-developed.</size> {versionText}";
                     }
                     
                     MenuAPI.CreateREPOButton(authorText, () => {}, parent, new Vector2(300, 329));
@@ -439,6 +447,116 @@ namespace MoreHead
             catch (Exception e)
             {
                 Logger?.LogError($"创建标签筛选按钮时出错: {e.Message}");
+            }
+        }
+        
+        // 创建搜索输入框
+        private static void CreateSearchInputField(REPOPopupPage? page)
+        {
+            try
+            {
+                const int x = 50;
+                const int y = 295;
+                
+                page?.AddElement(parent => {
+                    searchInputField = MenuAPI.CreateREPOInputField(
+                        "<size=12>SEARCH:</size>",           // Label text
+                        OnSearchValueChanged,                 // Callback
+                        parent,                               // Parent transform
+                        new Vector2(x, y),                    // Position
+                        onlyNotifyOnSubmit: false,            // Real-time filtering
+                        placeholder: "Type to filter...",     // Placeholder
+                        defaultValue: ""                      // Start empty
+                    );
+                });
+            }
+            catch (Exception e)
+            {
+                Logger?.LogError($"创建搜索框时出错: {e.Message}");
+            }
+        }
+        
+        // 搜索输入值变化回调
+        private static void OnSearchValueChanged(string searchQuery)
+        {
+            try
+            {
+                currentSearchQuery = searchQuery?.Trim() ?? "";
+                UpdateDecorationVisibility();
+            }
+            catch (Exception e)
+            {
+                Logger?.LogError($"搜索时出错: {e.Message}");
+            }
+        }
+        
+        // 更新装饰物可见性（基于标签和搜索过滤）
+        private static void UpdateDecorationVisibility()
+        {
+            try
+            {
+                if (decorationsPage == null || string.IsNullOrEmpty(currentTagFilter))
+                    return;
+                
+                if (!tagScrollViewElements.TryGetValue(currentTagFilter, out var elements))
+                    return;
+                
+                if (!decorationDataCache.TryGetValue(currentTagFilter, out var decorations))
+                    return;
+                
+                // Hide all decorations, then selectively enable them based on search and tag filters
+                foreach (var kvp in tagScrollViewElements)
+                {
+                    foreach (var element in kvp.Value)
+                    {
+                        if (element != null)
+                        {
+                            element.visibility = false;
+                        }
+                    }
+                }
+                
+                bool isSearchEmpty = string.IsNullOrEmpty(currentSearchQuery);
+                
+                if (isSearchEmpty)
+                {
+                    foreach (var element in elements)
+                    {
+                        if (element != null)
+                        {
+                            element.visibility = true;
+                        }
+                    }
+                }
+                else
+                {
+                    string searchLower = currentSearchQuery.ToLower();
+                    
+                    var matchingNames = new HashSet<string>(
+                        decorations
+                            .Where(d => d.DisplayName?.ToLower().Contains(searchLower) ?? false)
+                            .Select(d => d.Name ?? "")
+                            .Where(name => !string.IsNullOrEmpty(name))
+                    );
+                    
+                    foreach (var kvp in decorationButtons)
+                    {
+                        string decorationName = kvp.Key ?? "";
+                        REPOButton button = kvp.Value;
+                        
+                        if (button != null && elements.Contains(button.repoScrollViewElement))
+                        {
+                            button.repoScrollViewElement.visibility = matchingNames.Contains(decorationName);
+                        }
+                    }
+                }
+                
+                decorationsPage.scrollView.SetScrollPosition(0);
+                decorationsPage.scrollView.UpdateElements();
+            }
+            catch (Exception e)
+            {
+                Logger?.LogError($"应用搜索过滤时出错: {e.Message}");
             }
         }
         
@@ -992,6 +1110,10 @@ namespace MoreHead
                 tagFilterButtons.Clear();
                 outfitButtons.Clear();
                 
+                // 清空搜索状态
+                currentSearchQuery = "";
+                searchInputField = null;
+                
                 // 销毁现有页面
                 if (decorationsPage != null && decorationsPage.gameObject != null)
                 {
@@ -1200,38 +1322,11 @@ namespace MoreHead
                 if (decorationsPage == null)
                     return;
                 
-                // 隐藏当前标签的装饰物按钮
-                if (!string.IsNullOrEmpty(currentTagFilter) && 
-                    tagScrollViewElements.TryGetValue(currentTagFilter, out var currentElements))
-                {
-                    foreach (var element in currentElements)
-                    {
-                        if (element != null)
-                        {
-                            element.visibility = false;
-                        }
-                    }
-                }
-                
-                // 显示新标签的装饰物按钮
-                if (!string.IsNullOrEmpty(tag) && 
-                    tagScrollViewElements.TryGetValue(tag, out var newElements))
-                {
-                    foreach (var element in newElements)
-                    {
-                        if (element != null)
-                        {
-                            element.visibility = true;
-                        }
-                    }
-                }
-                
                 // 更新当前标签
                 currentTagFilter = tag;
                 
-                // 更新滚动视图
-                decorationsPage.scrollView.SetScrollPosition(0);
-                decorationsPage.scrollView.UpdateElements();
+                // 更新装饰物可见性（会隐藏其他标签并显示/过滤当前标签）
+                UpdateDecorationVisibility();
             }
             catch (Exception e)
             {
