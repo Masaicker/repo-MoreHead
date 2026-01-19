@@ -513,79 +513,59 @@ namespace MoreHead
         // 搜索输入值变化回调
         private static void OnSearchValueChanged(string? searchQuery)
         {
-            try
-            {
-                currentSearchQuery = searchQuery?.Trim() ?? "";
-                UpdateDecorationVisibility();
-            }
-            catch (Exception e)
-            {
-                Logger?.LogError($"搜索时出错: {e.Message}");
-            }
+            currentSearchQuery = searchQuery ?? "";
+            UpdateDecorationVisibility();
         }
         
         // 更新装饰物可见性（基于标签和搜索过滤）
         private static void UpdateDecorationVisibility()
         {
-            try
-            {
-                if (decorationsPage == null || string.IsNullOrEmpty(currentTagFilter))
-                    return;
-                
-                if (!tagScrollViewElements.TryGetValue(currentTagFilter, out var elements))
-                    return;
-                
-                if (!decorationDataCache.TryGetValue(currentTagFilter, out var decorations))
-                    return;
-                
-                // Hide all decorations, then selectively enable them based on search and tag filters
-                foreach (var kvp in tagScrollViewElements)
-                {
-                    foreach (var element in kvp.Value)
-                    {
-                        if (element != null)
-                        {
-                            element.visibility = false;
-                        }
-                    }
-                }
-                
-                bool isSearchEmpty = string.IsNullOrEmpty(currentSearchQuery);
-                
-                if (isSearchEmpty)
-                {
-                    foreach (var element in elements)
-                    {
-                        if (element != null)
-                        {
-                            element.visibility = true;
-                        }
-                    }
-                }
-                else
-                {
-                    string searchLower = currentSearchQuery.ToLower();
+            if (decorationsPage == null || string.IsNullOrEmpty(currentTagFilter))
+                return;
 
-                    // 直接遍历当前标签的装饰物数据，避免遍历所有按钮
-                    foreach (var decoration in decorations)
+            if (!tagScrollViewElements.TryGetValue(currentTagFilter, out var elements))
+                return;
+
+            if (!decorationDataCache.TryGetValue(currentTagFilter, out var decorations))
+                return;
+
+            // Hide all decorations, then selectively enable them based on search and tag filters
+            foreach (var kvp in tagScrollViewElements)
+            {
+                foreach (var element in kvp.Value)
+                {
+                    element?.visibility = false;
+                }
+            }
+
+            bool isSearchEmpty = string.IsNullOrEmpty(currentSearchQuery);
+
+            if (isSearchEmpty)
+            {
+                foreach (var element in elements)
+                {
+                    element?.visibility = true;
+                }
+            }
+            else
+            {
+                // 非空搜索：只显示当前标签中匹配的
+                string searchNormalized = currentSearchQuery.Replace(" ", "").ToLowerInvariant();
+
+                foreach (var decoration in decorations)
+                {
+                    if (decorationButtons.TryGetValue(decoration.Name ?? string.Empty, out REPOButton button) &&
+                        button != null &&
+                        elements.Contains(button.repoScrollViewElement))
                     {
-                        if (decorationButtons.TryGetValue(decoration.Name ?? string.Empty, out REPOButton button) &&
-                            button != null &&
-                            elements.Contains(button.repoScrollViewElement))  // 兼容分组功能
-                        {
-                            button.repoScrollViewElement.visibility =
-                                decoration.DisplayName?.ToLower().Contains(searchLower) == true;
-                        }
+                        var displayNameNormalized = decoration.DisplayName?.Replace(" ", "").ToLowerInvariant() ?? "";
+                        button.repoScrollViewElement.visibility = displayNameNormalized.Contains(searchNormalized);
                     }
                 }
-                
-                decorationsPage.scrollView.SetScrollPosition(0);
-                decorationsPage.scrollView.UpdateElements();
             }
-            catch (Exception e)
-            {
-                Logger?.LogError($"应用搜索过滤时出错: {e.Message}");
-            }
+
+            decorationsPage.scrollView.SetScrollPosition(0);
+            decorationsPage.scrollView.UpdateElements();
         }
         
         // 标签筛选按钮点击事件
