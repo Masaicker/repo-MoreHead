@@ -1,3 +1,7 @@
+# v1.4.4
+* 优化搜索功能：搜索时忽略空格，实现双向模糊匹配（搜"small flag"可输入"smallflag"，反之亦然）
+* Improved search: spaces are ignored for bidirectional fuzzy matching (search "small flag" by typing "smallflag", and vice versa)
+
 # v1.4.3
 * 修复MenuLib移除MenuScrollBox.Update IL hook后产生的滚动交互问题
 * 添加搜索框功能
