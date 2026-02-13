@@ -1,0 +1,22 @@
+ASSET LICENSE FOR MOREHEAD MOD
+
+Copyright (c) 2026 YurisCat
+
+All 3D models, textures, materials, Unity assets, and embedded AssetBundles
+included in this mod are the intellectual property of the original creator
+and are **All Rights Reserved**.
+
+You are permitted to:
+
+- Use these assets locally in your game for personal use, testing, or reference.
+
+You are **not permitted** to:
+
+- Copy, redistribute, or repackage these assets outside of this mod.
+- Include these assets in other projects or mods without explicit permission
+  from the original creator.
+
+Attribution:
+
+- All models were specially created for this mod by YurisCat
+  Bilibili: https://space.bilibili.com/1704421

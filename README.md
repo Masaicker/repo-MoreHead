@@ -1,6 +1,23 @@
 <small>
 
-**All models were created by Yuri's cat Calypso, specifically for this mod :3**
+# License & Resource Notice / 许可与资源说明
+
+## Code / 代码
+The source code of this mod is released under the MIT License.  
+本模组源代码采用 MIT 许可开源。
+
+## Assets / 资源
+All 3D models, textures, materials, Unity resources, and embedded AssetBundles  
+are **not included in MIT** and remain **All Rights Reserved**.  
+They may be **used locally** within the game but **may not be redistributed**.  
+
+所有 3D 模型、贴图、材质、Unity 资源文件及内嵌 AssetBundle  
+不属于 MIT 许可范围，均为版权所有（All Rights Reserved）。  
+可在本地游戏中使用，但禁止在本项目之外复制或再分发。
+
+<br>
+
+**All models were created by YurisCat Calypso, specifically for this mod :3**
 <br>
 **所有的模型由[尤里的猫·卡里普索](https://space.bilibili.com/1704421)为了这个模组而制作:3**
 
