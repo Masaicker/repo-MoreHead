@@ -7,7 +7,7 @@ namespace MoreHead
     public static class DecorationUtils
     {
         // 节点路径常量
-        private const string HEAD_NODE_PATH = "[RIG]/code_lean/code_tilt/ANIM BOT/_____________________________________/ANIM BODY BOT/_____________________________________/ANIM BODY TOP/code_body_top_up/code_body_top_side/_____________________________________/ANIM HEAD BOT/code_head_bot_up/code_head_bot_side/_____________________________________/ANIM HEAD TOP/code_head_top";
+        private const string HEAD_NODE_PATH = "[RIG]/code_lean/code_tilt/ANIM BOT/_____________________________________/ANIM BODY BOT/_____________________________________/ANIM BODY TOP/code_body_top_up/code_body_top_side/_____________________________________/ANIM HEAD BOT/code_head_bot_up/code_head_bot_side/Player Spring Impulse - Head Bot/_____________________________________/ANIM HEAD TOP/code_head_top";
         private const string NECK_NODE_PATH = "[RIG]/code_lean/code_tilt/ANIM BOT/_____________________________________/ANIM BODY BOT/_____________________________________/ANIM BODY TOP/code_body_top_up/code_body_top_side/_____________________________________/ANIM HEAD BOT/code_head_bot_up/code_head_bot_side";
         private const string BODY_NODE_PATH = "[RIG]/code_lean/code_tilt/ANIM BOT/_____________________________________/ANIM BODY BOT/_____________________________________/ANIM BODY TOP/code_body_top_up/code_body_top_side/ANIM BODY TOP SCALE";
         private const string HIP_NODE_PATH = "[RIG]/code_lean/code_tilt/ANIM BOT/_____________________________________/ANIM BODY BOT";
