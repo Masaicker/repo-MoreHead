@@ -1,3 +1,9 @@
+# v1.4.5
+* 已装备的装饰品会在重新打开列表时置顶，方便查看当前装备且避免点击后列表立即跳动造成误触
+* 修复头部装饰品节点路径，适配新的头部骨骼结构
+* Equipped cosmetics now move to the top when reopening the list, making current outfit pieces easier to find without causing the list to jump immediately after clicking
+* Fixed the head decoration node path for the updated head rig hierarchy
+* 
 # v1.4.4
 * 优化搜索功能：搜索时忽略空格，实现双向模糊匹配（搜"small flag"可输入"smallflag"，反之亦然）
 * Improved search: spaces are ignored for bidirectional fuzzy matching (search "small flag" by typing "smallflag", and vice versa)

@@ -44,7 +44,8 @@ namespace MoreHead
         // Search functionality
         private static string currentSearchQuery = "";
         private static REPOInputField? searchInputField;
-        
+        private static string decorationOrderStateKey = "";
+
         // 装饰物数据缓存 - 存储所有标签的装饰物数据
         private static Dictionary<string, List<DecorationInfo>> decorationDataCache = new();
         
@@ -64,6 +65,7 @@ namespace MoreHead
 
         // 按钮和页面名称常量
         private const string BUTTON_NAME = "<color=#FF0000>M</color><color=#FF3300>O</color><color=#FF6600>R</color><color=#FF9900>E</color><color=#FFCC00>H</color><color=#FFDD00>E</color><color=#FFEE00>A</color><color=#FFFF00>D</color>";
+        private const char DecorationOrderStateSeparator = '\x1F';
         private static readonly string PAGE_TITLE = "Rotate robot: A/D";
         
         // 所有可用标签
@@ -241,6 +243,11 @@ namespace MoreHead
             
             try
             {
+                if (decorationsPage != null && decorationOrderStateKey != GetDecorationOrderStateKey())
+                {
+                    RecreateUI();
+                }
+
                 // 如果装饰页面还没创建，则创建它
                 if (decorationsPage == null)
                 {
@@ -1143,6 +1150,13 @@ namespace MoreHead
             }
         }
 
+        private static string GetDecorationOrderStateKey()
+        {
+            return string.Join(DecorationOrderStateSeparator.ToString(), HeadDecorationManager.Decorations
+                .Select(decoration => $"{decoration.Name}{DecorationOrderStateSeparator}{decoration.DisplayName}{DecorationOrderStateSeparator}{decoration.ParentTag}{DecorationOrderStateSeparator}{IsBuiltInDecoration(decoration)}{DecorationOrderStateSeparator}{decoration.IsVisible}")
+                .OrderBy(value => value));
+        }
+
         // 创建所有装饰物按钮
         private static void CreateAllDecorationButtons(REPOPopupPage page)
         {
@@ -1159,31 +1173,18 @@ namespace MoreHead
                     tagScrollViewElements[tag] = new List<REPOScrollViewElement>();
                 }
                 
-                // 获取所有装饰物并分为内置模型和外部模型
-                var allDecorations = HeadDecorationManager.Decorations.ToList();
-                
-                var builtInDecorations = allDecorations
-                    .Where(decoration => IsBuiltInDecoration(decoration))
-                    .OrderBy(decoration => decoration.DisplayName)
+                var sortedDecorations = HeadDecorationManager.Decorations
+                    .OrderByDescending(decoration => decoration.IsVisible)
+                    .ThenBy(decoration => IsBuiltInDecoration(decoration) ? 0 : 1)
+                    .ThenBy(decoration => decoration.DisplayName)
                     .ToList();
-                
-                var externalDecorations = allDecorations
-                    .Where(decoration => !IsBuiltInDecoration(decoration))
-                    .OrderBy(decoration => decoration.DisplayName)
-                    .ToList();
-                
-                // 创建所有内置装饰物按钮
-                foreach (var decoration in builtInDecorations)
+
+                foreach (var decoration in sortedDecorations)
                 {
                     CreateDecorationButton(page, decoration);
                 }
-                
-                // 创建所有外部装饰物按钮
-                foreach (var decoration in externalDecorations)
-                {
-                    CreateDecorationButton(page, decoration);
-                }
-                
+
+                decorationOrderStateKey = GetDecorationOrderStateKey();
                 Logger?.LogInfo($"创建了所有装饰物按钮，总共 {decorationButtons.Count} 个");
             }
             catch (Exception e)
