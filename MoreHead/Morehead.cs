@@ -1121,12 +1121,6 @@ class MenuScrollBox_Update_Patch
     private static readonly AccessTools.FieldRef<MenuScrollBox, MenuSelectableElement> GetMenuSelectableElement =
         AccessTools.FieldRefAccess<MenuScrollBox, MenuSelectableElement>("menuSelectableElement");
 
-    // MenuElementHover 和 MenuSelectableElement 的内部字段访问器
-    private static readonly AccessTools.FieldRef<MenuElementHover, bool> GetIsHovering =
-        AccessTools.FieldRefAccess<MenuElementHover, bool>("isHovering");
-    private static readonly AccessTools.FieldRef<MenuSelectableElement, string> GetMenuID =
-        AccessTools.FieldRefAccess<MenuSelectableElement, string>("menuID");
-
     [HarmonyPrefix]
     static bool Prefix(MenuScrollBox __instance)
     {
@@ -1144,7 +1138,7 @@ class MenuScrollBox_Update_Patch
         // 更新 scrollBoxActive 状态
         if (GetPageScrollBoxes(parentPage) > 1)
         {
-            refScrollBoxActive(__instance) = GetIsHovering(GetMenuElementHover(__instance));
+            refScrollBoxActive(__instance) = GetMenuElementHover(__instance).isHovering;
         }
 
         if (!scrollBar.activeSelf)
@@ -1180,7 +1174,7 @@ class MenuScrollBox_Update_Patch
         }
 
         // 鼠标拖动滑块逻辑
-        if (Input.GetMouseButton(0) && SemiFunc.UIMouseHover(parentPage, scrollBarBackground, GetMenuID(GetMenuSelectableElement(__instance)), 0f, 0f))
+        if (Input.GetMouseButton(0) && SemiFunc.UIMouseHover(parentPage, scrollBarBackground, GetMenuSelectableElement(__instance).menuID, 0f, 0f))
         {
             float num = SemiFunc.UIMouseGetLocalPositionWithinRectTransform(scrollBarBackground).y;
             num = Mathf.Clamp(num, scrollHandle.sizeDelta.y / 2f, scrollBarBackground.rect.height - scrollHandle.sizeDelta.y / 2f);
