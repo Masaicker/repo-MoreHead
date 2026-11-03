@@ -28,13 +28,13 @@ They may be **used locally** within the game but **may not be redistributed**.
 # Introduction 简介
 A simple and fun decoration mod that provides a **unitypackage** for players to import custom models.
 <br>Currently, only a few decorations are available, but more updates are planned.
-<br>[nickklmao-MenuLib](https://thunderstore.io/c/repo/p/nickklmao/MenuLib/) mod is required as a prerequisite.
+<br>[REPOModding-MenuLib](https://thunderstore.io/c/repo/p/REPOModding/MenuLib/) mod is required as a prerequisite.
 <br>if you encounter strength loss problems, please download the [fixstrength](https://thunderstore.io/c/repo/p/YMC_MHZ/fixstrength/) mod.
 <br>
 
 简单好玩的装饰模组，提供 **unitypackage**，供玩家导入自定义模型。
 <br>目前仅有少量装饰，未来会持续更新。
-<br>需安装 [nickklmao-MenuLib](https://thunderstore.io/c/repo/p/nickklmao/MenuLib/) 前置模组。
+<br>需安装 [REPOModding-MenuLib](https://thunderstore.io/c/repo/p/REPOModding/MenuLib/) 前置模组。
 <br>如果遇到力量丢失问题，请下载 [fixstrength](https://thunderstore.io/c/repo/p/YMC_MHZ/fixstrength/) 模组。
 
 ![](https://i.imgur.com/7wmnl1P.png)
@@ -68,17 +68,17 @@ A simple and fun decoration mod that provides a **unitypackage** for players to 
 
 <div style="border: 2px solid red; padding: 10px; background-color: #fff0f0;">
 
-With **`MenuLib`** updated to **`2.1.3`**, **`MoreHead`** must be updated to **`1.3.0`** or later to function properly.
+For the current game version, use **`MoreHead 1.4.6`** or later with **`REPOModding-MenuLib 2.6.0`**. This combination has been tested in game.
 
-> <mark>⚠️ If you are still using **`MoreHead 1.2.8`** or earlier, please keep **`MenuLib`** at **`2.1.1`** or earlier to avoid compatibility issues.</mark>
+MoreHead 1.4.6 fixes menu scrolling and slider interaction issues caused by the game update, including issues affecting the game's own menus.
 
 For the best experience and stability, we recommend always using the latest version.
 
 <br>
 
-**`MenuLib`** 已更新至 **`2.1.3`**，因此 **`MoreHead`** 需升级至 **`1.3.0`** 或更高版本才能正常运行。
+当前游戏版本请使用 **`MoreHead 1.4.6`** 或更高版本，并搭配 **`REPOModding-MenuLib 2.6.0`**。此组合已完成游戏内测试。
 
-> <mark>⚠️ 如果您仍在使用 **`MoreHead 1.2.8`** 或更早版本，请确保 **`MenuLib`** 仍为 **`2.1.1`** 或更早版本，否则可能会出现兼容性问题。</mark>
+MoreHead 1.4.6 修复了游戏更新后菜单滚动和滑块交互异常的问题，包括对游戏原版菜单的影响。
 
 为确保最佳体验和稳定性，建议始终使用最新版本。
 
@@ -89,11 +89,17 @@ For the best experience and stability, we recommend always using the latest vers
 ### Previously: 之前的版本
 <div style="border: 1px solid gray; padding: 10px; background-color: #f8f8f8;">
 
+**MenuLib** **2.1.3** → **MoreHead** **1.3.0+** required.<br>
 **MenuLib** **2.0.0** → **MoreHead** **1.2.8+** required.  
 **MenuLib** **1.0.3** → **MoreHead** **1.1.8+** required.  
 
+**MoreHead 1.2.8** or earlier requires **MenuLib 2.1.1** or earlier.
+
+**MenuLib** **2.1.3** → 需要 **MoreHead** **1.3.0+** 版本。<br>
 **MenuLib** **2.0.0** → 需要 **MoreHead** **1.2.8+** 版本。  
 **MenuLib** **1.0.3** → 需要 **MoreHead** **1.1.8+** 版本。
+
+**MoreHead 1.2.8** 或更早版本需搭配 **MenuLib 2.1.1** 或更早版本。
 
 </div>
 

@@ -1,9 +1,15 @@
+# v1.4.6
+* 修复游戏更新后菜单滚动补丁初始化失败，导致原版菜单及 MoreHead 菜单滚动、滑块交互异常的问题（#58、#59，PR #60）
+* 已使用 REPOModding-MenuLib 2.6.0 完成游戏内测试，感谢 nebcore 提供修复
+* Fixed scroll patch initialization after the game update, restoring scrolling and slider interaction in the game's menus and the MoreHead menu (#58, #59; PR #60)
+* Tested in game with REPOModding-MenuLib 2.6.0. Thanks to nebcore for the fix
+
 # v1.4.5
 * 已装备的装饰品会在重新打开列表时置顶，方便查看当前装备且避免点击后列表立即跳动造成误触
 * 修复头部装饰品节点路径，适配新的头部骨骼结构
 * Equipped cosmetics now move to the top when reopening the list, making current outfit pieces easier to find without causing the list to jump immediately after clicking
 * Fixed the head decoration node path for the updated head rig hierarchy
-* 
+
 # v1.4.4
 * 优化搜索功能：搜索时忽略空格，实现双向模糊匹配（搜"small flag"可输入"smallflag"，反之亦然）
 * Improved search: spaces are ignored for bidirectional fuzzy matching (search "small flag" by typing "smallflag", and vice versa)

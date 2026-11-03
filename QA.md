@@ -9,7 +9,7 @@ You can also customize the button position in both locations through the config 
 Make sure all players have the same version of MoreHead installed. If someone hasn't installed the mod, they will see the default appearance, while you might see them wearing your cosmetics.
 
 ## 3. What should I do if MoreHead shows an error at startup?
-MoreHead relies on the MenuLib library. If MenuLib is updated, it might cause errors. Please roll back the MenuLib version, and MoreHead will be updated later to support the latest version of MenuLib.
+MoreHead relies on the MenuLib library. On the current game version, use MoreHead 1.4.6 or later with REPOModding-MenuLib 2.6.0; this combination has been tested in game. MoreHead 1.4.6 also fixes scrolling and slider interaction issues affecting the game's menus after the game update. For older game versions, check the compatibility notes in README.
 
 ## 4.Why does the game throw errors or behave strangely when using certain mods alongside MoreHead?
 Some extension mods may accidentally include an older version of `MoreHead.dll` in their package. This can lead to conflicts during loading and result in bugs or crashes. Try checking the mod contents—if you find a bundled `MoreHead.dll`, try removing it or contacting the mod creator.
@@ -35,7 +35,7 @@ If you encounter strength loss issues during gameplay, try downloading the **fix
 请确保所有玩家都安装了相同版本的MoreHead。如果有人没有安装该模组，他们将看到默认外观，而你可能会看到他们穿着你的饰品。
 
 ## 3. 如果MoreHead在启动时显示错误该怎么办？
-MoreHead依赖于MenuLib库。如果MenuLib更新，可能会导致错误。请回滚MenuLib版本，MoreHead稍后会更新以支持最新版本的MenuLib。
+MoreHead 依赖于 MenuLib 库。当前游戏版本请使用 MoreHead 1.4.6 或更高版本，并搭配 REPOModding-MenuLib 2.6.0，此组合已完成游戏内测试。MoreHead 1.4.6 也修复了游戏更新后影响原版菜单的滚动和滑块交互问题。旧版游戏请参考 README 中的兼容性说明。
 
 ## 4. 为什么在使用某些模组与MoreHead一起时，游戏会报错或行为异常？
 一些扩展模组可能会意外地在其包中包含旧版本的 `MoreHead.dll`。这可能导致加载过程中的冲突，并导致错误或崩溃。请尝试检查模组内容——如果你发现捆绑的 `MoreHead.dll`，请尝试删除它或联系模组创建者。
